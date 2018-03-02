@@ -1,0 +1,11 @@
+{% extends 'wiki/wiki_base.html' %}
+
+{% block title %}Logout{% endblock %}
+
+{% block content %}
+<div id="branding">
+<h1 id="site-name">Logged Out</h1>
+<p>ログアウトしました</p>
+<p><a href="/">ホームページへ</a>&nbsp; <a href="{% url 'login' %}">もう一度ログイン</a></p>
+</div>
+{% endblock %}

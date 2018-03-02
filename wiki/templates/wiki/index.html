@@ -1,0 +1,225 @@
+{% extends "wiki/wiki_base.html" %}
+{% load static %}
+{% load leaflet_tags %}
+{% load geojson_tags %}
+{% block content %}
+  <div class="row">
+    <div class="col-md-6">
+      <a href="/"><img src="{% static 'wiki/image/soyachiken.png' %}" height=70px class="rounded" /></a>
+    </div>
+    <div class="col-md-6 text-right">
+      <ul class="list-inline-item">
+      {% if not user.is_authenticated %}
+      <li class="list-inline-item"><a href="/accounts/login/">ログイン</a></li>
+      <li class="list-inline-item"><a href="/accounts/signup/">登録</a></li>
+      {% else %} 
+      <li class="list-inline-item">{{ user.username }}さん(&nbsp;<a href="{% url 'profile' user.id %}">アカウント</a>&nbsp;)</li>
+      <li class="list-inline-item"><a href="/accounts/logout">ログアウト</a></li>
+      {% endif %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-9">
+    <style media="screen">
+      #default_map { width:100%; height: 440px;}
+    </style>
+    <script src="{% static 'wiki/js/leaflet.ajax.min.js' %}"></script>
+    <script type="text/javascript">
+    function map_init_default (map, options) {
+      Lfeatures = makeFeatureLayer("{% url 'features' %}");
+      Lsections1920 = makeSectionLayer("{% url 'sections' 1920 1949 %}");
+      Lsections1950 = makeSectionLayer("{% url 'sections' 1950 1969 %}");
+      Lsections1995 = makeSectionLayer("{% url 'sections' 1970 1989 %}");
+      Lsections2017 = makeSectionLayer("{% url 'sections' 1990 2017 %}");
+
+      Lstations1920 = makeStationLayer("{% url 'stations' 1920 1949 %}");
+      Lstations1950 = makeStationLayer("{% url 'stations' 1950 1969 %}");
+      Lstations1995 = makeStationLayer("{% url 'stations' 1970 1989 %}");
+      Lstations2017 = makeStationLayer("{% url 'stations' 1990 2017 %}");
+
+      LsectionsBase = makeSectionLayer("{% url 'sections' 1920 2017 %}");
+      LstationsBase = makeStationLayer("{% url 'stations' 1920 2017 %}");
+
+      Ladm1920  = makeAdmLayer("{% url 'adm1920' %}", 1920, "1920");
+      Ladm1950  = makeAdmLayer("{% url 'adm1995' %}", 1950, "1950");
+      Ladm1995  = makeAdmLayer("{% url 'adm1995' %}", 1995, "1995");
+      Ladm2017  = makeAdmLayer("{% url 'adm2017' %}", 2017, "2017");
+
+      g2017 = L.layerGroup([Lsections2017]);
+      g1995 = L.layerGroup([Lsections1995]);
+      g1950 = L.layerGroup([Lsections1950]);
+      g1920 = L.layerGroup([Lsections1920]);
+
+      var baseL = {
+        '1990年〜現在': g2017,
+        '1971〜1990年': g1995,
+        '1951〜1970年': g1950,
+        '1950年以前': g1920
+      }
+
+      cntl = L.control.layers(baseL,null,{collapsed:false});
+
+      cntl.addTo(map);
+
+      Lfeatures.addTo(map);
+
+      gdefault = L.layerGroup([LsectionsBase]);
+      gdefault.addTo(map);
+
+      map.on('baselayerchange', function(e) {
+        // if at least one layer change occured,
+        // we discard the gdefault layer!
+        if (map.hasLayer(gdefault)) {
+          // gdefault.removeLayer(LstationsBase);
+          map.removeLayer(gdefault);
+        }
+        console.log(e.name);
+        console.log(map.getZoom());
+
+        if (map.getZoom()>=10){
+          switch(e.name) {
+            case '1950年以前':
+              if (!g1920.hasLayer(Ladm1920))      g1920.addLayer(Ladm1920);
+              if (!g1920.hasLayer(Lstations1920)) g1920.addLayer(Lstations1920);
+              Ladm1920.bringToBack();
+              break;
+            case '1951〜1970年':
+              if (!g1950.hasLayer(Ladm1950))      g1950.addLayer(Ladm1950);
+              if (!g1950.hasLayer(Lstations1950)) g1950.addLayer(Lstations1950);
+              break;
+            case '1971〜1990年':
+              if (!g1995.hasLayer(Ladm1995))      g1995.addLayer(Ladm1995);
+              if (!g1995.hasLayer(Lstations1995)) g1995.addLayer(Lstations1995);
+              break;
+            case '1990年〜現在':
+              if (!g2017.hasLayer(Ladm2017))      g2017.addLayer(Ladm2017);
+              if (!g2017.hasLayer(Lstations2017)) g2017.addLayer(Lstations2017);
+              break;
+            default:
+              console.log("SOYALAB ERROR: UNKNOWN PERIOD SELECTED!!!: " + e.name);
+              // do nothing
+          }
+        }
+        else {
+          switch(e.name) {
+            case '1950年以前':
+              g1920.removeLayer(Ladm1920);
+              g1920.removeLayer(Lstations1920);
+              break;
+            case '1951〜1970年':
+              g1950.removeLayer(Ladm1950);
+              g1950.removeLayer(Lstations1950);
+              break;
+            case '1971〜1990年':
+              g1995.removeLayer(Ladm1995);
+              g1995.removeLayer(Lstations1995);
+              break;
+            case '1990年〜現在':
+              g2017.removeLayer(Ladm2017);
+              g2017.removeLayer(Lstations2017);
+              break;
+            default:
+              console.log("SOYALAB ERROR: UNKNOWN PERIOD SELECTED!!!: " + e.name);
+              // do nothing
+          }
+        }
+      })
+
+
+      map.on('zoomend', function(){
+        if (map.getZoom()>=10){
+          console.log(map.getZoom());
+
+          if (map.hasLayer(gdefault)) gdefault.addLayer(LstationsBase);
+
+          if (map.hasLayer(g1920)){
+            if (!g1920.hasLayer(Ladm1920))      g1920.addLayer(Ladm1920);
+            if (!g1920.hasLayer(Lstations1920)) g1920.addLayer(Lstations1920);
+          }
+          if (map.hasLayer(g1950)){
+            if (!g1920.hasLayer(Ladm1950))      g1950.addLayer(Ladm1950);
+            if (!g1920.hasLayer(Lstations1950)) g1950.addLayer(Lstations1950);
+          }
+          if (map.hasLayer(g1995)){
+            if (!g1920.hasLayer(Ladm1995))      g1995.addLayer(Ladm1995);
+            if (!g1920.hasLayer(Lstations1995)) g1995.addLayer(Lstations1995);
+          }
+          if (map.hasLayer(g2017)){
+            if (!g1920.hasLayer(Ladm2017))      g2017.addLayer(Ladm2017);
+            if (!g1920.hasLayer(Lstations2017)) g2017.addLayer(Lstations2017);
+          }
+        }
+        else {
+          if (map.hasLayer(gdefault)) gdefault.removeLayer(LstationsBase);
+
+          if (map.hasLayer(g1920)){
+            if (g1920.hasLayer(Ladm1920))      g1920.removeLayer(Ladm1920);
+            if (g1920.hasLayer(Lstations1920)) g1920.removeLayer(Lstations1920);
+          }
+          if (map.hasLayer(g1950)){
+            if (g1950.hasLayer(Ladm1950))      g1950.removeLayer(Ladm1950);
+            if (g1950.hasLayer(Lstations1950)) g1950.removeLayer(Lstations1950);
+          }
+          if (map.hasLayer(g1995)){
+            if (g1995.hasLayer(Ladm1995))      g1995.removeLayer(Ladm1995);
+            if (g1995.hasLayer(Lstations1995)) g1995.removeLayer(Lstations1995);
+          }
+          if (map.hasLayer(g2017)){
+            if (g2017.hasLayer(Ladm2017))      g2017.removeLayer(Ladm2017);
+            if (g2017.hasLayer(Lstations2017)) g2017.removeLayer(Lstations2017);
+          }
+        }
+
+      })
+
+    }
+    </script>
+      {% leaflet_map "default_map" callback="window.map_init_default" %}
+    </div>
+
+    <div class="col-md-3 text-right">
+      <h5>宗谷・道北地域に関する</h5>
+      <div class="float-left list-group">
+      <ul>
+        <li class="list-group-item"><strong>記事: </strong> {{ nart }}</li>
+        <li class="list-group-item"><strong>画像: </strong> {{ nimg }}</li>
+        <li class="list-group-item"><strong>地点: </strong> {{ nfet }}</li>
+        <!-- <li class="list-group-item"><a href="#" class="btn btn-outline-danger btn-sm">削除</a></li> -->
+      </ul>
+      <h5>が登録されています</h5>
+      (その他、地研からのお知らせなどが↑ここに表示される)
+    </div>
+  </div><!-- row -->
+
+
+  <div class="row" style="margin-top:60px">
+  <div class="card col-md-4 bg-light">
+    <img class="card-img-top rounded" src="https://i.ytimg.com/vi/E2M2kGRp-OI/hqdefault.jpg" height="200px" alt="NO IMAGE" />
+    <div class="card-body">
+      <h4 class="card-title">宗谷地研の使い方</h4>
+      <p class="card-text">地図上の地点をクリックすると、その場所にまつわる記事や写真を閲覧することができます。あなたも<a href="/accounts/signup">登録</a>して、記事や写真を投稿しましょう。</p>
+    </div>
+    <div class="card-footer"><a href="#" class="btn btn-primary">詳しい使い方(近日公開)</a></div>
+  </div>
+  <div class="card col-md-4">
+    <img class="card-img-top" src="{% static 'wiki/image/soyaapp.png'%}" height="200px" alt="Card image cap" />
+    <div class="card-body px-2 py-3">
+      <h4 class="card-title">地研アプリ</h4>
+      <p class="card-text">地研への投稿や地理データを使って、インタラクティブなWebアプリケーションを作成しました。どうぞお楽しみください。</p>
+    </div>
+    <div class="card-footer"><a href="#" class="btn btn-primary">近日公開</a></div>
+  </div>
+  <div class="card col-md-4 bg-light">
+    <img class="card-img-top" src="{% static 'wiki/image/souyakenkyuu.jpg'%}" height="200px" alt="souyakenkyuu" />
+    <div class="card-body">
+      <h4 class="card-title">宗谷地域研究所について</h4>
+      <p class="card-text">宗谷地研の活動や取り組みをご紹介します（稚内北星学園大学ウェブサイトへ）  。</p>
+    </div>
+    <div class="card-footer"><a href="http://www.wakhok.ac.jp/tiiki_kenkyuu.html" target="_blank" class="btn btn-primary">もっと知る</a></div>
+
+  </div>
+  </div>
+
+{% endblock %}

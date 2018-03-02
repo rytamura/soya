@@ -1,0 +1,28 @@
+{% load i18n static %}
+{% load leaflet_tags %}
+{% load geojson_tags %}
+<!DOCTYPE html>{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}">
+<head>
+	{% block title %}<title>Soya Lab Wiki</title>{% endblock %}
+	<link rel="shortcut icon" href="{% static 'image/favicon.ico' %}"/>	
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="{% static 'wiki/css/bootstrap.min.css' %}">
+	{% leaflet_js %}
+	{% leaflet_css %}
+	{% block extra_css %}{% endblock %}
+	{% load static %}
+	<script src="{% static 'wiki/js/soya.js' %}"></script>
+</head>
+<body>
+	<div class="container" style="padding-top:10px;">
+	{% block content %}
+		{{ content }}
+	{% endblock %}
+	</div>
+
+<script src="{% static 'wiki/js/jquery-3.3.1_min.js' %}"></script>
+<script src="{% static 'wiki/js/bootstrap.bundle.min.js' %}"></script>
+<div style="padding-top: 10px">&nbsp;</div>
+</body>

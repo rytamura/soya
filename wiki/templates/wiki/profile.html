@@ -1,0 +1,38 @@
+{% extends "wiki/wiki_base.html" %}
+{% load static %}
+{% load leaflet_tags %}
+{% load geojson_tags %}
+{% block content %}
+<div class="row" style="vertical-align: absmiddle;">
+  <div class="col-md-6">
+    <a href="/"><img src="{% static 'wiki/image/soyachiken.png' %}" height=70px class="rounded" /></a>
+  </div>
+  <div class="col-md-6 text-right">
+    <ul class="list-inline-item">
+    <li class="list-inline-item">{{ user.username }}さんのアカウントページ</li>
+    <li class="list-inline-item"><a href="/accounts/logout">ログアウト</a></li>
+    </ul>
+  </div>
+</div>
+
+<h3>投稿記事一覧</h3>
+<div class="row">
+	<table border="1">
+		<tr><th>公開</th><th>タイトル</th><th>本文</th><th>作成日時</th><th>更新日時</th></tr>
+		<tr>
+		{% for art in articles %}
+		{% if art.published %}
+		<td>○</td>
+		{% else %}
+		<td>-</td>
+		{% endif %}
+		<td><a href="{# url 'article' 'edit' 'art.id' #}">{{ art.title }}</a></td>
+		<td>{{ art.body }}</td>
+		<td>{{ art.created_at }}</td>
+		<td>{{ art.updated_at }}</td>
+		<!-- <td>{# url #}</td> -->
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+{% endblock %}

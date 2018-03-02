@@ -1,0 +1,18 @@
+{% extends 'wiki/wiki_base.html' %}
+
+{% block content %}
+{% if not user.is_authenticated %}
+<h1>登録</h1>
+<section class="common-form">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="submit">登録</button>
+    </form>
+</section>
+{% else %}
+<p>
+	あなたは既に {{ user.username }} としてログインしています。<a href="/">ホームページへ戻る</a>
+</p>	
+{% endif %}
+{% endblock %}
