@@ -7,6 +7,7 @@ from django.db.models import Q
 
 # Create your views here.
 
+
 def index(request):
 	#
 	num_articles = Article.objects.count()
@@ -27,6 +28,7 @@ def features_view(request):
 	points_as_geojson = serialize('geojson', Feature.objects.all())
 	return HttpResponse(points_as_geojson, content_type="json")
 
+
 def filter_railways(gjobjects, from_year, to_year):
 	return gjobjects.filter(
 		Q(rail_name = '天北線') |
@@ -38,11 +40,14 @@ def filter_railways(gjobjects, from_year, to_year):
 		Q(rail_name = '幌沼線') |
 		Q(company = '幌延町営軌道') |
 		Q(company = '歌登町営軌道'),
-		operated_to__gte = to_year
+	).exclude(
+		operated_from__gt = to_year
+	).exclude(
+		operated_to__lt = from_year
 	)
 
 def layer_view(objs, from_year, to_year):
-	return serialize('geojson', filter_railways(objs.all(), from_year, to_year))
+	return serialize('geojson', filter_railways(objs, from_year, to_year))
 
 def stations_view(request, from_year=1900, to_year=2010):
 	return HttpResponse(layer_view(RailroadStation2.objects, from_year, to_year), content_type="json")
@@ -51,7 +56,7 @@ def sections_view(request, from_year=1900, to_year=2010):
 	return HttpResponse(layer_view(RailroadSection2.objects, from_year, to_year), content_type="json")
 
 def adm1920_view(request):
-	lines_as_geojson = serialize('geojson', Adm1920.objects.filter(Q(sub_pref = '宗谷支庁') | Q(sub_pref='留萌支庁')))
+	lines_as_geojson = serialize('geojson', Adm1920.objects.filter(Q(sub_pref = '宗谷支庁') | Q(sub_pref='留萌支庁') | Q(city='中川村') ))
 	return HttpResponse(lines_as_geojson, content_type="json")
 
 def adm1950_view(request):
@@ -59,11 +64,11 @@ def adm1950_view(request):
 	return HttpResponse(lines_as_geojson, content_type="json")
 
 def adm1995_view(request):
-	lines_as_geojson = serialize('geojson', Adm1995.objects.filter(Q(sub_pref = '宗谷支庁') | Q(sub_pref='留萌支庁')))
+	lines_as_geojson = serialize('geojson', Adm1995.objects.filter(Q(sub_pref = '宗谷支庁') | Q(sub_pref='留萌支庁') | Q(city='中川町')))
 	return HttpResponse(lines_as_geojson, content_type="json")
 
 def adm2017_view(request):
-	lines_as_geojson = serialize('geojson', Adm2017.objects.filter(Q(sub_pref = '宗谷総合振興局') | Q(sub_pref='留萌振興局')))
+	lines_as_geojson = serialize('geojson', Adm2017.objects.filter(Q(sub_pref = '宗谷総合振興局') | Q(sub_pref='留萌振興局') | Q(city='中川町')))
 	return HttpResponse(lines_as_geojson, content_type="json")
 
 def profile_view(request, pk):
@@ -74,10 +79,17 @@ def profile_view(request, pk):
 		'wiki/profile.html',
 		context={
 			'name': request.user.get_username(),
-			'articles': articles
+			'articles': articles,
+			'nart': articles.count()
 		}
 	)
 
+def article_add_view(request):
+	pass
+
+def image_add_view(request):
+	pass
+	
 def article_edit_view(request, pk):
 	userid = request.user.id
 	article = Article.objects.filter(Q(id=pk))

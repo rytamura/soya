@@ -29,21 +29,21 @@
     <script type="text/javascript">
     function map_init_default (map, options) {
       Lfeatures = makeFeatureLayer("{% url 'features' %}");
-      Lsections1920 = makeSectionLayer("{% url 'sections' 1920 1949 %}");
-      Lsections1950 = makeSectionLayer("{% url 'sections' 1950 1969 %}");
-      Lsections1995 = makeSectionLayer("{% url 'sections' 1970 1989 %}");
-      Lsections2017 = makeSectionLayer("{% url 'sections' 1990 2017 %}");
+      Lsections1920 = makeSectionLayer("{% url 'sections' 1920 1950 %}");
+      Lsections1950 = makeSectionLayer("{% url 'sections' 1951 1970 %}");
+      Lsections1995 = makeSectionLayer("{% url 'sections' 1971 1990 %}");
+      Lsections2017 = makeSectionLayer("{% url 'sections' 1991 2017 %}");
 
-      Lstations1920 = makeStationLayer("{% url 'stations' 1920 1949 %}");
-      Lstations1950 = makeStationLayer("{% url 'stations' 1950 1969 %}");
-      Lstations1995 = makeStationLayer("{% url 'stations' 1970 1989 %}");
-      Lstations2017 = makeStationLayer("{% url 'stations' 1990 2017 %}");
+      Lstations1920 = makeStationLayer("{% url 'stations' 1920 1950 %}");
+      Lstations1950 = makeStationLayer("{% url 'stations' 1951 1970 %}");
+      Lstations1995 = makeStationLayer("{% url 'stations' 1971 1990 %}");
+      Lstations2017 = makeStationLayer("{% url 'stations' 1991 2017 %}");
 
       LsectionsBase = makeSectionLayer("{% url 'sections' 1920 2017 %}");
       LstationsBase = makeStationLayer("{% url 'stations' 1920 2017 %}");
 
       Ladm1920  = makeAdmLayer("{% url 'adm1920' %}", 1920, "1920");
-      Ladm1950  = makeAdmLayer("{% url 'adm1995' %}", 1950, "1950");
+      Ladm1950  = makeAdmLayer("{% url 'adm1950' %}", 1950, "1950");
       Ladm1995  = makeAdmLayer("{% url 'adm1995' %}", 1995, "1995");
       Ladm2017  = makeAdmLayer("{% url 'adm2017' %}", 2017, "2017");
 
@@ -53,7 +53,7 @@
       g1920 = L.layerGroup([Lsections1920]);
 
       var baseL = {
-        '1990年〜現在': g2017,
+        '1991年〜現在': g2017,
         '1971〜1990年': g1995,
         '1951〜1970年': g1950,
         '1950年以前': g1920
@@ -72,11 +72,10 @@
         // if at least one layer change occured,
         // we discard the gdefault layer!
         if (map.hasLayer(gdefault)) {
-          // gdefault.removeLayer(LstationsBase);
           map.removeLayer(gdefault);
         }
-        console.log(e.name);
-        console.log(map.getZoom());
+        // console.log(e.name);
+        // console.log(map.getZoom());
 
         if (map.getZoom()>=10){
           switch(e.name) {
@@ -126,7 +125,6 @@
           }
         }
       })
-
 
       map.on('zoomend', function(){
         if (map.getZoom()>=10){

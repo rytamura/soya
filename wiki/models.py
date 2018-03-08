@@ -53,6 +53,7 @@ class Comment(models.Model):
 	def __str__(self):
 		return("Comment")
 
+
 class CommentForm(ModelForm):
 	class Meta:
 		model = Comment

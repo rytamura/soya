@@ -13,6 +13,8 @@ urlpatterns = [
 	path('adm1995.data/', views.adm1995_view, name='adm1995'),
 	path('adm2017.data/', views.adm2017_view, name='adm2017'),
 	path('profile/<int:pk>/', views.profile_view, name='profile'),
-	path(r'article/edit/<int:pk>/', views.article_edit_view, name='edit'),
+	path(r'profile/article/add/', views.article_add_view, name='article_add'),
+	path(r'profile/image/add/', views.image_add_view, name='image_add'),
+	path(r'article/edit/<int:pk>/', views.article_edit_view, name='article_edit'),
 	# path('howto/', flatviews.flatpage, {'url': '/howto/', 'name': 'HowTo'}),
 ]
