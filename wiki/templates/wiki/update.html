@@ -1,0 +1,30 @@
+{% extends 'wiki/wiki_base.html' %}
+{% load bootstrap4 %}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+{% load static %}
+{% load leaflet_tags %}
+{% load geojson_tags %}
+<head>{{ forms.media }}</head>
+{% block content %}
+<div class="row" style="vertical-align: absmiddle;">
+  <div class="col-md-6">
+    <a href="/"><img src="{% static 'wiki/image/soyachiken.png' %}" height=70px class="rounded" /></a>
+  </div>
+  <div class="col-md-6 text-right">
+    <ul class="list-inline-item">
+    <li class="list-inline-item"><a href="{% url 'profile' user.id %}">戻る</a></li>
+    <li class="list-inline-item"><a href="/accounts/logout">ログアウト</a></li>
+    </ul>
+  </div>
+</div>
+
+<h4 class="mt-4 mb-5 border_bottom">記事の編集</h4>
+
+<form action="{{ update_article }}" method="post" class="form">
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  {% bootstrap_button '更新' button_type="submit" button_class='btn-primary' %}
+</form>
+
+{% endblock %}

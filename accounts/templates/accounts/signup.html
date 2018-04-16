@@ -1,18 +1,27 @@
 {% extends 'wiki/wiki_base.html' %}
+{% load bootstrap4 %}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+{% load static %}
 
 {% block content %}
+<div class="container">
+<div class="row">
+<h1 class="h3">ユーザ登録</h1>
+</div>
+<div class="row">
 {% if not user.is_authenticated %}
-<h1>登録</h1>
-<section class="common-form">
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="submit">登録</button>
-    </form>
-</section>
+<form method="post" class="form">
+<p>宗谷地研Wiki/アプリを利用するためにユーザ登録を行います。</p>
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  {% bootstrap_button '登録' button_type="submit" button_class='btn-primary' %}
+</form>
 {% else %}
 <p>
-	あなたは既に {{ user.username }} としてログインしています。<a href="/">ホームページへ戻る</a>
+あなたは既に {{ user.username }} としてログインしています。<a href="/">ホームページへ戻る</a>
 </p>	
 {% endif %}
+</div>
+</div>
 {% endblock %}

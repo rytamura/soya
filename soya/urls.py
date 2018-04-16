@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import RedirectView
+from django.contrib.flatpages import views
 
 urlpatterns = [
     path(r'accounts/', include('accounts.urls')),
@@ -24,4 +25,6 @@ urlpatterns = [
     path(r'geo/', include('geo.urls')),
     path(r'wiki/', include('wiki.urls')),
     path(r'',  RedirectView.as_view(url='/wiki/', permanent=True)),
+    path(r'tinymce/', include('tinymce.urls')),
+    path('howto/', include('django.contrib.flatpages.urls')),
 ]

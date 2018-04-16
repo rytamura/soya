@@ -312,8 +312,8 @@ railroadstation2_mapping = {
 class Feature(models.Model):
     name = models.CharField(max_length=128)
     address = models.CharField(max_length=256)
-    latitude = models.FloatField()
-    longitude = models.FloatField()
+    latitude = models.FloatField(null=True)
+    longitude = models.FloatField(null=True)
     note = models.CharField(max_length=256)
 
     geom = models.PointField(srid=4612)
@@ -323,6 +323,5 @@ class Feature(models.Model):
 
     def geocode(self):
         geolocator = Nominatim()
-
-
-
+        loc = geolocator.geocode(address)
+        

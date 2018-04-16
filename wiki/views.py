@@ -1,5 +1,7 @@
 from django.shortcuts import render
-from .models import Article, Image
+from django.urls import reverse_lazy
+from django.views import generic
+from .models import Article
 from geo.models import Feature, RailroadStation2, RailroadSection2, Adm1920, Adm1950, Adm1995, Adm2017
 from django.http import HttpResponse
 from django.core.serializers import serialize
@@ -11,7 +13,6 @@ from django.db.models import Q
 def index(request):
 	#
 	num_articles = Article.objects.count()
-	num_images   = Image.objects.count()
 	num_features = Feature.objects.count()
 
 	return render(
@@ -19,7 +20,6 @@ def index(request):
 		'wiki/index.html',
 		context = {
 			'nart' : num_articles,
-			'nimg' : num_images,
 			'nfet' : num_features,
 		}
 	)
@@ -60,7 +60,7 @@ def adm1920_view(request):
 	return HttpResponse(lines_as_geojson, content_type="json")
 
 def adm1950_view(request):
-	lines_as_geojson = serialize('geojson', Adm1950.objects.all())
+	lines_as_geojson = serialize('geojson', Adm1950.objects.filter(Q(sub_pref = '宗谷支庁') | Q(sub_pref='留萌支庁') | Q(city='中川町') ))
 	return HttpResponse(lines_as_geojson, content_type="json")
 
 def adm1995_view(request):
@@ -84,19 +84,56 @@ def profile_view(request, pk):
 		}
 	)
 
-def article_add_view(request):
+def detail_view(request, pk):
+	userid = request.user.id
+	article = Article.objects.filter(Q(id=pk))
+	return render(
+		request,
+		'wiki/detail.html',
+		context = {
+			'art': article,
+		}
+	)
+
+def create_view(request, pk):
 	pass
 
+
+class DetailView(generic.DetailView):
+	model=Article
+	template_name = 'wiki/detail.html'
+
+class CreateView(generic.CreateView):
+	model = Article
+	fields = '__all__'
+	template_name = 'wiki/create.html'
+
+class UpdateView(generic.UpdateView):
+	model = Article
+	fields = '__all__'
+	exclude = ['author', 'soya_certified']
+	template_name = 'wiki/update.html'
+
+	def get_success_url(self):
+		return reverse_lazy('profile', self.request.user.id)
+
+class DeleteView(generic.DeleteView):
+	model = Article
+	success_url = reverse_lazy('wiki:index')
+	template_name = 'wiki/delete.html'
+ 
 def image_add_view(request):
 	pass
-	
+
+"""	
 def article_edit_view(request, pk):
 	userid = request.user.id
 	article = Article.objects.filter(Q(id=pk))
 	return render (
 		request,
-		'wiki/edit.html',
+		'wiki/update.html',
 		context = {
 			'art': article
 		}
 	)
+"""

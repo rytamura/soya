@@ -26,8 +26,9 @@ SECRET_KEY = 'hv%p_=f-5(*von9h#^^!t99q=tmc_a7f-c%3+&7s051#%52%7h'
 DEBUG = True
 
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
 
+SITE_ID = 1
 
 # Application definition
 
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     'imagekit',
     'django.contrib.gis',
     'geo',
+    'image',
     'wiki',
     'accounts',
     'jquery',
@@ -51,6 +53,7 @@ INSTALLED_APPS = [
     'bootstrap4',
     'taggit',
     'gunicorn',
+    'tinymce',
 ]
 
 MIDDLEWARE = [
@@ -103,6 +106,10 @@ else:
         'default': dj_database_url.config()
     }
 
+GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH')
+GEOS_LIBRARY_PATH = os.getenv('GEOS_LIBRARY_PATH')
+
+ALLOWED_HOSTS = ['*']
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -162,3 +169,16 @@ LOGIN_REDIRECT_URL = '/'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+TINYMCE_JS_URL = os.path.join(BASE_DIR, "wiki/static/wiki/js/tiny_mce/tiny_mce.js")
+TINYMCE_JS_ROOT = os.path.join(BASE_DIR, "wiki/static/wiki/js/tiny_mce")
+TINYMCE_DEFAULT_CONFIG = {
+    'theme':'advanced',
+    'plugins':'table, paste, searchreplace',
+    'menubar':'edit',
+    'toolbar':'paste,attach',
+    'theme_advanced_buttons1':'bold, paste, attach, italic, underline, bullist, numlist, link, unlink, styleselect, fontsizeselect',
+    'width':'100%',
+    'height':'300',
+    'valid_styles':'font-weight, font-style, text-decoration',
+    'fontsize_default':'24pt',
+}

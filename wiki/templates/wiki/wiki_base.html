@@ -1,4 +1,8 @@
 {% load i18n static %}
+{% load bootstrap4 %}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+
 {% load leaflet_tags %}
 {% load geojson_tags %}
 <!DOCTYPE html>{% get_current_language as LANGUAGE_CODE %}
@@ -13,12 +17,10 @@
 	<link rel="stylesheet" href="{% static 'wiki/css/bootstrap.min.css' %}">
 	{% leaflet_js %}
 	{% leaflet_css %}
-	{% block extra_css %}{% endblock %}
-	{% load static %}
 	<script src="{% static 'wiki/js/soya.js' %}"></script>
 </head>
 <body>
-	<div class="container" style="padding-top:10px;">
+	<div class="container">
 	{% block content %}
 		{{ content }}
 	{% endblock %}
@@ -26,5 +28,9 @@
 
 <script src="{% static 'wiki/js/jquery-3.3.1_min.js' %}"></script>
 <script src="{% static 'wiki/js/bootstrap.bundle.min.js' %}"></script>
+
+{% block extra_js %}{% endblock %}
+{% block extra_css %}{% endblock %}
+{% load static %}
 <div style="padding-top: 10px">&nbsp;</div>
 </body>

@@ -3,6 +3,9 @@ from django.forms import ModelForm
 from django.contrib.auth.models import User
 from geo.models import Feature
 from django.utils.translation import gettext as _
+from tinymce.models import HTMLField
+from tinymce import models as tinymce_models
+from tinymce.widgets import TinyMCE
 
 # Create your models here.
 
@@ -21,9 +24,10 @@ class Article(models.Model):
 	author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 	title = models.CharField('タイトル', max_length=128)
 	summary = models.CharField('概要', max_length=256)
-	body = models.TextField('本文')
-	landmark = models.ForeignKey(Feature, on_delete=models.PROTECT, null=True)
-	categories = models.ManyToManyField(Category)
+	body = tinymce_models.HTMLField('本文')#, widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
+	# landmark = models.ForeignKey(Feature, on_delete=models.PROTECT, null=True)
+	# image = models.ImageField(upload_to='static/image/', null=True)
+	# categories = models.ManyToManyField(Category)
 	soya_certified = models.BooleanField(_("認証済"), default=False, help_text=_("Certified"))
 
 	class Meta:
@@ -36,7 +40,7 @@ class ArticleForm(ModelForm):
 	class Meta:
 		model = Article
 		fields = '__all__'
-		exclude = ['soya_certified']
+		exclude = ['soya_certified', 'author']
 
 
 class Comment(models.Model):
@@ -59,7 +63,7 @@ class CommentForm(ModelForm):
 		model = Comment
 		fields = '__all__'
 
-
+"""
 class Image(models.Model):
 	created_at = models.DateTimeField('作成日時', auto_now=True)
 	updated_at = models.DateTimeField('更新日時', auto_now=True)
@@ -73,3 +77,4 @@ class Image(models.Model):
 
 	class Meta:
 		ordering = ["-created_at"]
+"""
