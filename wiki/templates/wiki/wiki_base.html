@@ -1,8 +1,7 @@
 {% load i18n static %}
 {% load bootstrap4 %}
-{% bootstrap_css %}
+{% bootstrap_css %} 
 {% bootstrap_javascript jquery='full' %}
-
 {% load leaflet_tags %}
 {% load geojson_tags %}
 <!DOCTYPE html>{% get_current_language as LANGUAGE_CODE %}
@@ -17,7 +16,9 @@
 	<link rel="stylesheet" href="{% static 'wiki/css/bootstrap.min.css' %}">
 	{% leaflet_js %}
 	{% leaflet_css %}
-	<script src="{% static 'wiki/js/soya.js' %}"></script>
+	<script type="text/javascript" src="{% static 'wiki/js/soya.js' %}"></script>
+	<script type="text/javascript" src="{% static 'wiki/js/tinymce/tinymce.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'wiki/js/tinymce/jquery.tinymce.min.js' %}"></script>
 </head>
 <body>
 	<div class="container">
@@ -34,3 +35,4 @@
 {% load static %}
 <div style="padding-top: 10px">&nbsp;</div>
 </body>
+</html>

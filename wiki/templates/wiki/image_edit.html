@@ -1,0 +1,93 @@
+{% load i18n static %}
+{% load bootstrap4 %}
+{% bootstrap_css %} 
+{% bootstrap_javascript jquery='full' %}
+{% load leaflet_tags %}
+{% load geojson_tags %}
+<!DOCTYPE html>{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}">
+<head>
+  {% block title %}<title>写真の編集</title>{% endblock %}
+  <!--[if IE 8]><script src="{% static "leaflet/eventlister.ie8.js" %}"></script><!--<![endif]-->
+  <!--[if lt IE 8]><script src="{% static "leaflet/eventlister.ie6-7.js" %}"></script><!--<![endif]-->
+  <link rel="shortcut icon" href="{% static 'image/favicon.ico' %}"/> 
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{% static 'wiki/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'wiki/css/soya.css' %}">
+
+  <script type="text/javascript" src="{% static 'wiki/js/jquery-3.3.1_min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'wiki/js/clipboard.min.js' %}"></script>
+  {% leaflet_js %}
+  {% leaflet_css %}
+  <script type="text/javascript" src="{% static 'wiki/js/soya_link.js' %}"></script>
+  <script type="text/javascript" src="{% static 'wiki/js/bootstrap.min.js' %}"></script>
+  {{ forms.media }}
+</head>
+<body>
+  <div class="container">
+  <script type="text/javascript">
+      function map_init_default (map, options) {
+        {% if file.latitude is not None %}
+        map.setView( [ {{file.latitude}}, {{file.longitude}} ], 15);
+        var marker = L.marker([ {{file.latitude}}, {{file.longitude}} ]).addTo(map);
+        {% else %}
+        var the_marker
+        function onMapClick(e){
+          if (the_marker){
+            map.removeLayer(the_marker);
+          }
+          the_marker = L.marker(e.latlng, {draggable:'false'});
+          
+          $('#id_longitude').val(the_marker.getLatLng().lng);
+          $('#id_latitude').val(the_marker.getLatLng().lat);
+          console.log($('#id_longitude').val());
+          console.log($('#id_latitude').val());
+          var position = the_marker.getLatLng();
+          map.panTo(new L.LatLng(position.lat, position.lng)); 
+          the_marker.addTo(map);
+        };
+        map.on('click', onMapClick);
+       {% endif %}
+      }
+      </script>
+
+  <div class="row">
+    <div class="col-md-6"  style="padding:0 20px">
+      <style media="screen">
+        #default_map { width:400px; height: 300px;}
+      </style>
+      <script src="{% static 'wiki/js/leaflet.ajax.min.js' %}"></script>
+      {% leaflet_map "default_map" callback="window.map_init_default" %}
+    </div>
+    <div class="col-md-6">
+      <script type="text/javascript">new ClipboardJS('.btn');</script>
+      <a href="{{file.upload.url}}" target="_new"><img src="{{file.thumbM.url}}" height="300px" /></a><br/>
+      <button class="btn" data-clipboard-text="{{file.upload.url}}">画像のURLをコピー</button>
+    </div>
+  </div>
+  <div class="row">
+    <div><!-- class="col-md-12"> -->
+      <form id="iframe_form" action="{% url 'update_uploaded_file' file.id %}" method="post" class="form">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {% bootstrap_messages %}
+        {% bootstrap_button '更新' button_type="submit" button_class='btn-primary' %}
+      </form>
+      <script type="text/javascript">
+        $(function(){
+            $("#iframe_form").submit(function(){
+                parent.jQuery.fancybox.getInstance().close();
+                // parent.location.href=parent.location.href;
+            });
+        });
+      </script>
+    </div>
+  </div>
+  
+</div>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.3.5/jquery.fancybox.min.js"></script>
+</body>
+
+</html>

@@ -1,6 +1,22 @@
 import os
 from django.contrib.gis.utils import LayerMapping
 from .models import *
+# Auto-generated `LayerMapping` dictionary for Station2 model
+railroadstation2_mapping = {
+    'ctype': 'N05_001',
+    'rail_name': 'N05_002',
+    'company': 'N05_003',
+    'supplied_in': 'N05_004',
+    'operated_from': 'N05_005b',
+    'operated_to': 'N05_005e',
+    'relation_id': 'N05_006',
+    'transition_id': 'N05_007',
+    'transition_note': 'N05_008',
+    'note': 'N05_009',
+    'station_name': 'N05_011',
+    'geom': 'MULTIPOINT',
+}
+
 
 Adm1920_mapping = {
     'pref': 'N03_001',
@@ -150,8 +166,8 @@ def main(klass, mapping, name, verbose=True):
 
 
 #main(Adm2017, Adm2017_mapping, "adm2017.shp")
-#main(Adm2015, Adm2015_mapping, "adm2015.shp")
-#main(Adm2005, Adm2005_mapping, "adm2005.shp")
+main(Adm2015, Adm2015_mapping, "adm2015.shp")
+main(Adm2005, Adm2005_mapping, "adm2005.shp")
 main(Adm1995, Adm1995_mapping, "adm1995.shp")
 main(Adm1985, Adm1985_mapping, "adm1985.shp")
 main(Adm1980, Adm1980_mapping, "adm1980.shp")

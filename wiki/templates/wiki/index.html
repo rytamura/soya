@@ -12,7 +12,7 @@
       {% if not user.is_authenticated %}
       <li class="list-inline-item"><a href="/accounts/login/">ログイン</a></li>
       <li class="list-inline-item"><a href="/accounts/signup/">登録</a></li>
-      {% elif user.id == 1 %} 
+      {% elif user.id == 2 %} 
       <li class="list-inline-item">{{ user.username }}さん(&nbsp;<a href="/admin/">サイト管理</a>&nbsp;)</li>
       <li class="list-inline-item"><a href="/accounts/logout">ログアウト</a></li>
       {% else %}
@@ -38,10 +38,10 @@
       LsectionsBase = makeSectionLayer("{% url 'sections' 1920 2017 %}");
       LstationsBase = makeStationLayer("{% url 'stations' 1920 2017 %}");
 
-      Ladm1920  = makeAdmLayer("{% url 'adm1920' %}", 1920, "1920");
-      Ladm1950  = makeAdmLayer("{% url 'adm1950' %}", 1950, "1950");
-      Ladm1995  = makeAdmLayer("{% url 'adm1995' %}", 1995, "1995");
-      Ladm2017  = makeAdmLayer("{% url 'adm2017' %}", 2017, "2017");
+      Ladm1920  = makeAdmLayer("{% url 'adm1920' %}", 1920, 1920);
+      Ladm1950  = makeAdmLayer("{% url 'adm1950' %}", 1950, 1950);
+      Ladm1995  = makeAdmLayer("{% url 'adm1995' %}", 1995, 1995);
+      Ladm2017  = makeAdmLayer("{% url 'adm2017' %}", 2017, 2017);
 
       g2017 = L.layerGroup([Lsections2017]);
       g1995 = L.layerGroup([Lsections1995]);
@@ -70,10 +70,10 @@
         if (map.hasLayer(gdefault)) {
           map.removeLayer(gdefault);
         }
-        // console.log(e.name);
+        console.log(e.name);
         // console.log(map.getZoom());
 
-        if (map.getZoom()>=10){
+        if (map.getZoom()>=9){
           switch(e.name) {
             case '1950年以前':
               if (!g1920.hasLayer(Ladm1920))      g1920.addLayer(Ladm1920);
@@ -88,7 +88,7 @@
               if (!g1995.hasLayer(Ladm1995))      g1995.addLayer(Ladm1995);
               if (!g1995.hasLayer(Lstations1995)) g1995.addLayer(Lstations1995);
               break;
-            case '1990年〜現在':
+            case '1991年〜現在':
               if (!g2017.hasLayer(Ladm2017))      g2017.addLayer(Ladm2017);
               if (!g2017.hasLayer(Lstations2017)) g2017.addLayer(Lstations2017);
               break;
@@ -111,7 +111,7 @@
               g1995.removeLayer(Ladm1995);
               g1995.removeLayer(Lstations1995);
               break;
-            case '1990年〜現在':
+            case '1991年〜現在':
               g2017.removeLayer(Ladm2017);
               g2017.removeLayer(Lstations2017);
               break;
@@ -123,7 +123,7 @@
       })
 
       map.on('zoomend', function(){
-        if (map.getZoom()>=10){
+        if (map.getZoom()>=9){
           console.log(map.getZoom());
 
           if (map.hasLayer(gdefault)) gdefault.addLayer(LstationsBase);

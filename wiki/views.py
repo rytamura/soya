@@ -1,14 +1,22 @@
-from django.shortcuts import render
-from django.urls import reverse_lazy
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse_lazy, reverse
 from django.views import generic
-from .models import Article
-from geo.models import Feature, RailroadStation2, RailroadSection2, Adm1920, Adm1950, Adm1995, Adm2017
-from django.http import HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.core.serializers import serialize
+from django.contrib.auth.models import User
 from django.db.models import Q
+from django.conf import settings
+from django.forms import ModelForm, HiddenInput
+from django_file_md5 import calculate_md5
+import os
+import datetime
+
+from geo.models import Feature, FeatureForm, RailroadStation2, RailroadSection2, Adm1920, Adm1950, Adm1995, Adm2015
+from .geojson_serializer import Serializer
+from .image_exif import ImageMetaData
+from .models import WikiFile, WikiFileForm, WikiFileForm2, Article, ArticleForm
 
 # Create your views here.
-
 
 def index(request):
 	#
@@ -25,7 +33,7 @@ def index(request):
 	)
 
 def features_view(request):
-	points_as_geojson = serialize('geojson', Feature.objects.all())
+	points_as_geojson = serialize('custom_geojson', Feature.objects.all())
 	return HttpResponse(points_as_geojson, content_type="json")
 
 
@@ -47,7 +55,8 @@ def filter_railways(gjobjects, from_year, to_year):
 	)
 
 def layer_view(objs, from_year, to_year):
-	return serialize('geojson', filter_railways(objs, from_year, to_year))
+	ser = serialize('custom_geojson', filter_railways(objs, from_year, to_year))
+	return ser
 
 def stations_view(request, from_year=1900, to_year=2010):
 	return HttpResponse(layer_view(RailroadStation2.objects, from_year, to_year), content_type="json")
@@ -56,84 +65,288 @@ def sections_view(request, from_year=1900, to_year=2010):
 	return HttpResponse(layer_view(RailroadSection2.objects, from_year, to_year), content_type="json")
 
 def adm1920_view(request):
-	lines_as_geojson = serialize('geojson', Adm1920.objects.filter(Q(sub_pref = '宗谷支庁') | Q(sub_pref='留萌支庁') | Q(city='中川村') ))
+	lines_as_geojson = serialize('custom_geojson', Adm1920.objects.filter(Q(sub_pref = '宗谷支庁') | Q(sub_pref='留萌支庁') | Q(city='中川村') ))
 	return HttpResponse(lines_as_geojson, content_type="json")
 
 def adm1950_view(request):
-	lines_as_geojson = serialize('geojson', Adm1950.objects.filter(Q(sub_pref = '宗谷支庁') | Q(sub_pref='留萌支庁') | Q(city='中川町') ))
+	lines_as_geojson = serialize('custom_geojson', Adm1950.objects.filter(Q(sub_pref = '宗谷支庁') | Q(sub_pref='留萌支庁') | Q(city='中川町') ))
 	return HttpResponse(lines_as_geojson, content_type="json")
 
 def adm1995_view(request):
-	lines_as_geojson = serialize('geojson', Adm1995.objects.filter(Q(sub_pref = '宗谷支庁') | Q(sub_pref='留萌支庁') | Q(city='中川町')))
+	lines_as_geojson = serialize('custom_geojson', Adm1995.objects.filter(Q(sub_pref = '宗谷支庁') | Q(sub_pref='留萌支庁') | Q(city='中川町')))
 	return HttpResponse(lines_as_geojson, content_type="json")
 
 def adm2017_view(request):
-	lines_as_geojson = serialize('geojson', Adm2017.objects.filter(Q(sub_pref = '宗谷総合振興局') | Q(sub_pref='留萌振興局') | Q(city='中川町')))
+	lines_as_geojson = serialize('custom_geojson', Adm2015.objects.filter(Q(sub_pref = '宗谷総合振興局') | Q(sub_pref='留萌振興局') | Q(city='中川町')))
 	return HttpResponse(lines_as_geojson, content_type="json")
+
+def wiki_media_dir(userid):
+	upload_path = os.path.join(settings.MEDIA_ROOT, str(userid))
+	if not os.path.exists(upload_path):
+		os.mkdir(upload_path)
+	return upload_path
+
+def upload_view(request, pk):
+	if request.method == 'POST':
+		author = User.objects.get(pk=pk)
+		if True: # form.is_valid():
+			identity_check = WikiFile.objects.filter(md5 = calculate_md5(request.FILES.get('file')))
+			if len(identity_check) > 0:
+				return HttpResponse('このファイルは既に登録されています', status=500)
+
+			file = request.FILES['file']
+			upload_path = os.path.join(wiki_media_dir(request.user.id), file.name)
+			#with open(upload_path, 'wb+') as dest:
+			#	for chunk in file.chunks():
+			#		dest.write(chunk)
+
+			metadata = ImageMetaData(file.temporary_file_path())
+			lat, lng = metadata.get_lat_lng()
+			obj = WikiFile(created_at=datetime.datetime.now(), author=author, published=False, title="", summary="", latitude=lat, longitude=lng, upload=request.FILES.get('file'), md5=calculate_md5(request.FILES.get('file')))
+			obj.save()
+			return HttpResponse(status=200)
+	else:
+		return HttpResponse("Only POST methods needed", status=500)
+
+	return HttpResponse("アップロードに失敗しました", status=500)
+
+def list_files_view(request, pk):
+	if request.method == 'POST':
+		author = User.objects.get(pk=pk)
+		objs = WikiFile.objects.filter(author=author)
+
+	else:
+		return HttpResponse("Only POST methods needed", status=500)
+
+	return HttpResponse("アップロードに失敗しました", status=500)
+
+def delete_uploaded_view(request, pk):
+	if request.method == 'POST':
+		uploaded = WikiFile.objects.filter(md5=calculate_md5)
+		get_object_or_404(WikiFile, )
+	else:
+		return HttpResponse("Only POST methods needed", status=500)
+
+	return HttpResponse('アップロードに失敗しました', status=500)
+
+def edit_file(request, pk):
+	userid = request.user.id
+	file = WikiFile.objects.get(pk=pk)
+	form = WikiFileForm2(instance=file)
+	return render(
+		request,
+		'wiki/image_edit.html',
+		context = {
+			'userid' : userid,
+			'form' : form,
+			'file' : file
+		}
+	)
+
+def update_file(request, pk):
+	userid = request.user.id
+	if request.method=="POST":
+		file = WikiFile.objects.get(pk=pk)
+		form = WikiFileForm2(request.POST, request)
+		if form.is_valid():
+			file.published = form.cleaned_data['published']
+			file.title = form.cleaned_data['title']
+			file.summary = form.cleaned_data['summary']
+			file.categories.set(form.cleaned_data['categories'])
+			file.latitude = form.cleaned_data['latitude']
+			file.longitude = form.cleaned_data['longitude']
+			file.save()
+		else:
+			raise
+	else:
+		return HttpResponse('Only POST method required', status=500)
+
+	msg = {"msg": "アップデート完了!"}
+	return HttpResponse(status=200)
+
 
 def profile_view(request, pk):
 	userid = request.user.id;
+	wiki_media_dir(userid)	
+
 	articles = Article.objects.filter(Q(author=request.user))
+	files = WikiFile.objects.filter(Q(author=request.user))
+
 	return render(
 		request,
 		'wiki/profile.html',
 		context={
+			'userid' : userid,
 			'name': request.user.get_username(),
 			'articles': articles,
-			'nart': articles.count()
+			'files': files,
+			'nart': articles.count(),
+			'nfile': files.count(),
 		}
 	)
 
-def detail_view(request, pk):
-	userid = request.user.id
-	article = Article.objects.filter(Q(id=pk))
-	return render(
-		request,
-		'wiki/detail.html',
-		context = {
-			'art': article,
-		}
-	)
+def get_gis_feature(params):
+	if 'section' in params:
+		return ['section', params['section']]
+	elif 'station' in params:
+		return ['station', params['station']]
+	elif 'adm' in params:
+		return ['adm', params['adm']]
+	elif 'feature' in params:
+		return ['feature', params['feature']]
+	return ['UNKNOWN', 'UNKNOWN']
 
-def create_view(request, pk):
-	pass
+def create_article(request):
+	if request.method == 'GET':
+		gtype, feature_name = get_gis_feature(request.GET)
+		lat = request.GET.get('lat')
+		lng = request.GET.get('lng')
+		form = ArticleForm(initial={'longitude':lng, 'latitude':lat, 'feature_name':feature_name, 'gis_type':gtype})
+		new_feature = (gtype == "adm") and (lat is not None)
+		is_adm = (gtype == "adm") and (lat is None)
+		is_station = (gtype == "station")
+		is_section = (gtype == "section")
+		is_feature = (gtype == "feature")
+		return render(
+			request,
+			'wiki/create.html',
+			context = {
+				'form': form,
+				'userid': request.user.id,
+				'feature': feature_name,
+				'is_new': new_feature,
+				'is_adm': is_adm,
+				'is_station': is_station,
+				'is_section': is_section,
+				'is_feature': is_feature,
+				'pk': 0, # not used
+				'is_new': True
+			}
+		)
+	else:
+		return HttpResponse("UNNOWN METHOD APPLIED.", status=500)
 
 
-class DetailView(generic.DetailView):
-	model=Article
-	template_name = 'wiki/detail.html'
+def edit_article(request, pk):
+	if request.method == 'GET': 
+		art = Article.objects.get(pk=pk)
+		gtype = art.gis_type
+		feature_name = art.feature_name
+		form = ArticleForm(instance=art)
+		new_feature = (gtype == "adm") and (lat is not None)
+		is_adm = (gtype == "adm") and (lat is None)
+		is_station = (gtype == "station")
+		is_section = (gtype == "section")
+		is_feature = (gtype == "feature")
+		return render(
+			request,
+			'wiki/create.html',
+			context = {
+				'form': form,
+				'userid': request.user.id,
+				'feature': feature_name,
+				'is_new': new_feature,
+				'is_adm': is_adm,
+				'is_station': is_station,
+				'is_section': is_section,
+				'is_feature': is_feature,
+				'pk':pk,
+				'is_new': False
+			}
+		)
+	else:
+		return HttpResponse("UNNOWN METHOD APPLIED.", status=500)
+"""
 
-class CreateView(generic.CreateView):
-	model = Article
-	fields = '__all__'
-	template_name = 'wiki/create.html'
+created_at = models.DateTimeField('作成日時', auto_now_add=True)
+	updated_at = models.DateTimeField('更新日時', auto_now=True)
+	# draft or publish
+	published = models.BooleanField('公開する', default=False)
+	feature_name = models.CharField(max_length=128, default="No place")
+	gis_type = models.CharField(max_length=32, default="No GIS type")
+	period = models.ForeignKey(Period, on_delete=models.PROTECT, verbose_name='年代', null=True)
+	latitude = models.FloatField(null=True)
+	longitude = models.FloatField(null=True)
+	author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+	title = models.CharField('記事タイトル', max_length=48)
+	summary = models.CharField('記事の概要', max_length=128)
+	body = tinymce_models.HTMLField('本文')
+	feature = models.ForeignKey(Feature, on_delete=models.PROTECT, null=True)
+	categories = models.ManyToManyField(Category, verbose_name="カテゴリ")
+	soya_certified = models.BooleanField(_("認証済"), default=False, help_text=_("Certified"))
 
-class UpdateView(generic.UpdateView):
-	model = Article
-	fields = '__all__'
-	exclude = ['author', 'soya_certified']
-	template_name = 'wiki/update.html'
+fields = ('published', 'title', 'summary', 'body', 'categories', 'feature_name', 'longitude', 'latitude', 'gis_type', 'period')
+		widgets = {'feature_name': HiddenInput(), 'longitude': HiddenInput(), 'latitude': HiddenInput(), 'gis_type': HiddenInput()}
 
-	def get_success_url(self):
-		return reverse_lazy('profile', self.request.user.id)
+obj = WikiFile(created_at=datetime.datetime.now(), author=author, published=False, title="", summary="", latitude=lat, longitude=lng, upload=request.FILES.get('file'), md5=calculate_md5(request.FILES.get('file')))
 
-class DeleteView(generic.DeleteView):
-	model = Article
-	success_url = reverse_lazy('wiki:index')
-	template_name = 'wiki/delete.html'
- 
-def image_add_view(request):
-	pass
+"""
 
-"""	
-def article_edit_view(request, pk):
-	userid = request.user.id
-	article = Article.objects.filter(Q(id=pk))
+def post_body(request, art, cl):
+	art.published = cl['published']
+	art.title = cl['title']
+	art.summary = cl['summary']
+	art.body = cl['body']
+	art.feature_name = cl['feature_name']
+	art.longitude = cl['longitude']
+	art.latitude = cl['latitude']
+	art.gis_type = cl['gis_type']
+	art.period = cl['period']
+	art.save()
+	art.categories.set(cl['categories'])
+	return HttpResponseRedirect(reverse('profile', args=(request.user.id, )))
+
+def post_new_article(request, pk):
+	if request.method == 'POST':
+		form = ArticleForm(request.POST, request)
+		if form.is_valid():
+			user = User.objects.get(pk=request.user.id)
+			art = Article(author=user)
+			return post_body(request, art, form.cleaned_data)
+		else:
+			raise
+	else:
+		return HttpResponse("UNNOWN METHOD APPLIED.", status=500)
+
+def post_article(request, pk):
+	if request.method == 'POST':
+		form = ArticleForm(request.POST, request)
+		if form.is_valid():
+			art = Article.objects.get(pk=pk)
+			return post_body(request, art, form.cleaned_data)
+		else:
+			raise
+	else:
+		return HttpResponse("UNNOWN METHOD APPLIED.", status=500)
+
+
+def create_feature(request):
+	params = request.GET
+	adm = params['adm']
+	latitude = params['lat']
+	longitude = params['lng']
+	form = FeatureForm(initial={'name':"", 'note':adm, 'latitude':latitude, 'longitude':longitude})
+	#return HttpResponse(status=200)
 	return render (
 		request,
-		'wiki/update.html',
+		'wiki/create_feature.html',
 		context = {
-			'art': article
+			'form': form,
+			'adm': adm,
+			'latitude': latitude,
+			'longitude': longitude,
 		}
 	)
-"""
+
+def update_feature(request):
+	params = request.POST
+	userid = request.user.id
+	form = FeatureForm(request.POST, request)
+	if form.is_valid():
+		feature = Feature.create(form.cleaned_data['name'], form.cleaned_data['note'], 
+			form.cleaned_data['latitude'], form.cleaned_data['longitude'])
+		feature.save()
+	else:
+		print(form)
+		raise
+	return HttpResponseRedirect(reverse('profile', args=(request.user.id, )))

@@ -7,7 +7,7 @@
 <!DOCTYPE html>{% get_current_language as LANGUAGE_CODE %}
 <html lang="{{ LANGUAGE_CODE|default:"en-us" }}">
 <head>
-  {% block title %}<title>Soya Lab Wiki</title>{% endblock %}
+  {% block title %}<title>記事の編集＠{{feature}}- Soya Lab Wiki</title>{% endblock %}
   <!--[if IE 8]><script src="{% static "leaflet/eventlister.ie8.js" %}"></script><!--<![endif]-->
   <!--[if lt IE 8]><script src="{% static "leaflet/eventlister.ie6-7.js" %}"></script><!--<![endif]-->
   <link rel="shortcut icon" href="{% static 'image/favicon.ico' %}"/> 
@@ -16,19 +16,21 @@
   <link rel="stylesheet" href="{% static 'wiki/css/bootstrap.min.css' %}">
   {% leaflet_js %}
   {% leaflet_css %}
+  <script type="text/javascript" src="{% static 'wiki/js/jquery-3.3.1_min.js' %}"></script>  
+  <script type="text/javascript" src="{% static 'wiki/js/js.cookie.js' %}"></script>
   <script type="text/javascript" src="{% static 'wiki/js/soya.js' %}"></script>
   <script type="text/javascript" src="{% static 'wiki/js/tinymce/tinymce.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'wiki/js/tinymce/jquery.tinymce.min.js' %}"></script>
   {{ forms.media }}
   <script type="text/javascript">
-      tinymce.init({
-          selector: "textarea", 
-          menubar: false,
-          plugins: "textcolor image link table lists emoticons autosave autolink imagetools media",
-          toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify bullist numlist outdent indent | link image media table | emoticons",     
-          language: "ja",
-          image_list: "/{% url 'image_list' user.id %}"
-      });
+    tinymce.init({
+        selector: "textarea", 
+        menubar: false,
+        plugins: "textcolor image link table lists emoticons autosave autolink imagetools media",
+        toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify bullist numlist outdent indent | link image media table | emoticons",     
+        language: "ja",
+    });
+    $(function(){ $('input[name=period]').val(Cookies.get('period')) });
   </script>
 </head>
 <body>
@@ -48,8 +50,20 @@
 </div>
 <div class="row">
   <div class="col-md-10">
-  <h4 class="mt-4 mb-5 border_bottom">記事の編集</h4>
-  <form action="{% url 'post_article' article.id %}" method="post" class="form">
+  <h4 class="mt-4 mb-5 border_bottom">
+    {% if is_new %}
+    {{ feature }}内の場所に
+    {% elif is_station %}
+    {{ feature }}駅に
+    {% else %}
+    {{ feature }}に
+    {% endif %}
+    関する新しい記事を作成
+  </h4>
+  {% if is_new %}
+  <p>{{ feature }}内の新しい場所を宗谷地研に登録します。タイトルには<b>場所の名前</b>を、概要には<b>場所の簡単な紹介</b>を記してください。新しい場所は、「公開する」をクリックしない限り、あなた以外には見えません。</p>
+  {% endif %}
+  <form action="{% if is_new %}{% url 'post_new_article' pk %}{% else %}{% url 'post_article' pk %}{% endif %}" method="post" class="form">
     {% csrf_token %}
     {% bootstrap_form form %}
     {% bootstrap_button '更新' button_type="submit" button_class='btn-primary' %}
@@ -58,3 +72,5 @@
 </div>
 </div>
 </body>
+
+

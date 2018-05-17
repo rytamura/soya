@@ -1,88 +1,386 @@
-{% extends "wiki/wiki_base.html" %}
-{% load bootstrap4 %}
-{% bootstrap_css %}
-{% bootstrap_javascript jquery='full' %}
-{% load static %}
+{% load i18n static %}
+{# load bootstrap4 #}
+{# bootstrap_css #} 
+{# bootstrap_javascript jquery='full' #}
 {% load leaflet_tags %}
 {% load geojson_tags %}
-{% block content %}
-<div class="row" style="vertical-align: absmiddle;">
-  <div class="col-md-6">
-    <a href="/"><img src="{% static 'wiki/image/soyachiken.png' %}" height=70px class="rounded" /></a>
-  </div>
-  <div class="col-md-6 text-right">
-    <ul class="list-inline-item">
-    <!-- <li class="list-inline-item">{{ user.username }}さんのアカウントページ</li>-->
-    <li class="list-inline-item"><a href="/">メインページ</a></li>
-    <li class="list-inline-item"><a href="/accounts/logout">ログアウト</a></li>
-    </ul>
-  </div>
-</div>
+<!DOCTYPE html>{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}">
+<head>
+  {% block title %}<title>Soya Lab Wiki</title>{% endblock %}
+  <!--[if IE 8]><script src="{% static "leaflet/eventlister.ie8.js" %}"></script><!--<![endif]-->
+  <!--[if lt IE 8]><script src="{% static "leaflet/eventlister.ie6-7.js" %}"></script><!--<![endif]-->
+  <link rel="shortcut icon" href="{% static 'image/favicon.ico' %}"/> 
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{% static 'wiki/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'wiki/js/dropzone.min.css' %}">
 
-<div class="row">
-    <div class="col-md-9">
-    <style media="screen">
-      #default_map { width:100%; height: 440px;}
-    </style>
-    <script src="{% static 'wiki/js/leaflet.ajax.min.js' %}"></script>
-      {% leaflet_map "default_map" callback="window.map_init_default" %}
+  <script type="text/javascript" src="{% static 'wiki/js/js.cookie.js' %}"></script>
+  <script type="text/javascript" src="{% static 'wiki/js/jquery-3.3.1_min.js' %}"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.3.5/jquery.fancybox.min.css">
+  {% leaflet_js %}
+  {% leaflet_css %}
+  <script type="text/javascript" src="{% static 'wiki/js/soya_link.js' %}"></script>
+  <script type="text/javascript" src="{% static 'wiki/js/tinymce/tinymce.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'wiki/js/tinymce/jquery.tinymce.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'wiki/js/dropzone.min.js' %}"></script>
+  <script type="text/javascript" src="https://unpkg.com/popper.js/dist/umd/popper.min.js"></script>
+  <script type="text/javascript" src="{% static 'wiki/js/bootstrap.min.js' %}"></script>
+
+  <link rel="stylesheet" href="http://leaflet.github.io/Leaflet.markercluster/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="http://leaflet.github.io/Leaflet.markercluster/dist/MarkerCluster.Default.css" />
+  <script src="http://leaflet.github.io/Leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>
+
+</head>
+<body>
+  <div class="container">
+  <div class="row" style="vertical-align: absmiddle;">
+    <div class="col-md-6">
+      <a href="/"><img src="{% static 'wiki/image/soyachiken.png' %}" height=70px class="rounded" /></a>
     </div>
+    <div class="col-md-6 text-right">
+      <ul class="list-inline-item">
+      <!-- <li class="list-inline-item">{{ user.username }}さんのアカウントページ</li>-->
+      <li class="list-inline-item"></li>
+      <li class="list-inline-item"><a href="/">メインページ</a></li>
+      <li class="list-inline-item"><a href="#" class="btn btn-success" data-toggle="modal" data-target="#myModal">アップロード</a>
+        <!-- modal begin -->
+        <div class="modal fade" tabindex="-1" id="myModal">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title">ファイル（写真など）のアップロード</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              </div>
+              <div class="modal-body">
+                <form method="POST" name="upload" action="{% url 'upload_files' userid %}" class="dropzone" id="my-dropzone" enctype="multipart/form-data">
+                  <!-- <input type="hidden" name="" />-->
+                  {% csrf_token %}
+                  <script>
+                    // myDropzone is the configuration for the element that has an id attribute
+                    // with the value my-dropzone (or myDropzone)
+                    Dropzone.options.myDropzone = {
+                      uploadMultiple: false,
+                      parallelUploads: 1,
+                      autoProcessQueue: true,
+                      renameFile: function(file) {
+                        return escape(file.name);
+                      },
+                      init: function() {
+                        this.on("addedfile", function(file) {
+                          // Create the remove button
+                          var removeButton = Dropzone.createElement("<button class='btn btn-outline-danger'>ファイルの削除</button>");
+                          // Capture the Dropzone instance as closure.
+                          var _this = this;
+                          // Listen to the click event
+                          removeButton.addEventListener("click", function(e) {
+                            // Make sure the button click doesn't submit the form:
+                            e.preventDefault();
+                            e.stopPropagation();
+                            // Remove the file preview.
+                            _this.removeFile(file);
+                            // If you want to the delete the file on the server as well,
+                            // you can do the AJAX request here.
 
-    <div class="col-md-3 text-right">
-      <h5>{{ user.username }} さんの</h5>
-      <div class="float-left list-group">
-      <ul>
-        <li class="list-group-item"><strong>記事: </strong> {{ nart }}</li>
-        <li class="list-group-item"><strong>画像: </strong> {{ nimg }}</li>
-        <li class="list-group-item"><strong>地点: </strong> {{ nfet }}</li>
-        <!-- <li class="list-group-item"><a href="#" class="btn btn-outline-danger btn-sm">削除</a></li> -->
+                          });
+                          // Add the button to the file preview element.
+                          file.previewElement.appendChild(removeButton);
+                          
+                        });
+                        // autoreload after upload is completed
+                        this.on('complete', function () {
+                          // location.reload();
+                        });
+                      }
+                    };
+                  </script>
+                  
+                </form>        
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="reload_page()">閉じる</button>
+              </div>
+              <script type="text/javascript">var reload_page=function(){location.reload();}</script>
+            </div>
+          </div>
+        </div>
+        <!-- modal done-->
+
+      </li>      
+      <li class="list-inline-item"><a href="/accounts/logout">ログアウト</a></li>
       </ul>
-      <h5>が登録されています</h5>
-      (その他、地研からのお知らせなどが↑ここに表示される)
-      </div>
-    </div><!-- row -->
-</div>
-
-
-
-<div class="row">
-  {% for art in articles %}
-  <div class="card-deck">
-    <div class="card" style="width: 15rem;">
-      <img class="card-img-top" src="..." alt="pic" />
-      <div class="card-body">
-        <h4 class="card-title">{{ art.title }}</h4>
-        <p class="card-subtitle mb-2 text-muted"><small>{% if art.published %}公開済み{% else %}草稿{% endif %}</small></p>
-        <p class="card-text">{{ art.body }}</p>
-        <p class="card-text"><small class="text-muted">最終更新日：{{ art.updated_at }}</small></p>
-      </div>
-      <div class="card-footer">
-        <a href="{% url 'update_article' art.id %}" class="card-link">編集</a>
-      </div>
+      
     </div>
   </div>
-  {% endfor %}
-</div>
-<!-- 
-<h3>記事一覧</h3>
-<div class="row">
-	<table border="1">
-		<tr><th>公開</th><th>タイトル</th><th>本文</th><th>作成日時</th><th>更新日時</th></tr>
-		<tr>
-		{% for art in articles %}
-		{% if art.published %}
-		<td>○</td>
-		{% else %}
-		<td>-</td>
-		{% endif %}
-		<td><a href="{# url 'article' 'edit' 'art.id' #}">{{ art.title }}</a></td>
-		<td>{{ art.body }}</td>
-		<td>{{ art.created_at }}</td>
-		<td>{{ art.updated_at }}</td>
-		<td>{# url #}</td>
-		</tr>
-		{% endfor %}
-	</table>
-</div> -->
 
-{% endblock %}
+  <script type="text/javascript">
+      function map_init_default (map, options) {
+        var mc = L.markerClusterGroup();
+        var popup = L.popup();
+        var coords = 0;
+
+        function onMapClick(e){
+          var coords = e.latlng;
+          popup.setLatLng(e.latlng).setContent('<a href="/wiki/create/article?landmark=&lat=' +coords.lat+ '&lng=' +coords.lng+ '">この場所の記事を作成</a>').openOn(map);
+        }
+
+        {% for file in files %}
+        var popup = '<a data-fancybox data-type="iframe" data-src="'+
+            "{% url 'edit_uploaded_file' file.id %}" + '"  href="javascript:;">' + 
+            '<img src="' + "{{file.thumbS.url}}" + '" width=50 /></a><br />' +
+            '{% if file.published == False %} <font size="-1">(未公開)</font> {% else %} (公開済み) {% endif %} <br/>' +
+            '{% if file.title == '' %} タイトルがありません {% else %} {{file.title}} {% endif %} <br/>' +
+            '{% if file.summary == '' %} 紹介文がありません {% else %} {{file.summary}} {% endif %}';
+        {% if file.latitude and file.longitude %}
+        var marker_{{forloop.counter}} = L.circle([ {{file.latitude}}, {{file.longitude}} ], {
+            color:  {% if file.published %} 'red' {% else %} 'blue' {% endif %},
+            fillColor:  {% if file.published %} '#f03' {% else %} '#cde' {% endif %},
+            fillOpacity: 0.5,
+            radius: 500
+        }).bindPopup(popup).addTo(map);
+        mc.addLayer(marker_{{forloop.counter}});
+        {% endif %}
+        {% endfor %}
+
+
+
+        Lfeatures     = makeFeatureLayerWithLink("{% url 'features' %}", coords);
+
+        Lsections1920 = makeSectionLayerWithLink("{% url 'sections' 1920 1950 %}");
+        Lsections1950 = makeSectionLayerWithLink("{% url 'sections' 1951 1970 %}");
+        Lsections1995 = makeSectionLayerWithLink("{% url 'sections' 1971 1990 %}");
+        Lsections2017 = makeSectionLayerWithLink("{% url 'sections' 1991 2017 %}");
+
+        Lstations1920 = makeStationLayerWithLink("{% url 'stations' 1920 1950 %}");
+        Lstations1950 = makeStationLayerWithLink("{% url 'stations' 1951 1970 %}");
+        Lstations1995 = makeStationLayerWithLink("{% url 'stations' 1971 1990 %}");
+        Lstations2017 = makeStationLayerWithLink("{% url 'stations' 1991 2017 %}");
+
+        LsectionsBase = makeSectionLayerWithLink("{% url 'sections' 1920 2017 %}");
+        LstationsBase = makeStationLayerWithLink("{% url 'stations' 1920 2017 %}");
+
+        Ladm1920  = makeAdmLayerWithLink("{% url 'adm1920' %}", 1920, "1920");
+        Ladm1950  = makeAdmLayerWithLink("{% url 'adm1950' %}", 1950, "1950");
+        Ladm1995  = makeAdmLayerWithLink("{% url 'adm1995' %}", 1995, "1995");
+        Ladm2017  = makeAdmLayerWithLink("{% url 'adm2017' %}", 2017, "2017");
+
+        g2017 = L.layerGroup([Lsections2017]);
+        g1995 = L.layerGroup([Lsections1995]);
+        g1950 = L.layerGroup([Lsections1950]);
+        g1920 = L.layerGroup([Lsections1920]);
+
+        var baseL = {
+          '1991年〜現在': g2017,
+          '1971〜1990年': g1995,
+          '1951〜1970年': g1950,
+          '1950年以前': g1920
+        }
+
+        cntl = L.control.layers(baseL,null,{collapsed:false});
+
+        cntl.addTo(map);
+
+        Lfeatures.addTo(map);
+
+        gdefault = L.layerGroup([LsectionsBase]);
+        gdefault.addTo(map);
+
+        if (mc.getLayers().length>0){
+          map.addLayer(mc);
+          map.fitBounds(mc.getBounds());
+        }
+        mc.bringToFront();
+        
+        map.on('baselayerchange', function(e) {
+          Cookies.set('period', e.name);
+          // if at least one layer change occured,
+          // we discard the gdefault layer!
+          if (map.hasLayer(gdefault)) {
+            map.removeLayer(gdefault);
+          }
+          console.log(e.name);
+          $('#period').text(e.name);
+          // console.log(map.getZoom());
+
+          if (map.getZoom()>=9){
+            switch(e.name) {
+              case '1950年以前':
+                if (!g1920.hasLayer(Ladm1920))      g1920.addLayer(Ladm1920);
+                if (!g1920.hasLayer(Lstations1920)) g1920.addLayer(Lstations1920);
+                Ladm1920.bringToBack();
+                break;
+              case '1951〜1970年':
+                if (!g1950.hasLayer(Ladm1950))      g1950.addLayer(Ladm1950);
+                if (!g1950.hasLayer(Lstations1950)) g1950.addLayer(Lstations1950);
+                Ladm1950.bringToBack();
+                break;
+              case '1971〜1990年':
+                if (!g1995.hasLayer(Ladm1995))      g1995.addLayer(Ladm1995);
+                if (!g1995.hasLayer(Lstations1995)) g1995.addLayer(Lstations1995);
+                Ladm1995.bringToBack();
+                break;
+              case '1991年〜現在':
+                if (!g2017.hasLayer(Ladm2017))      g2017.addLayer(Ladm2017);
+                if (!g2017.hasLayer(Lstations2017)) g2017.addLayer(Lstations2017);
+                Ladm2017.bringToBack();
+                break;
+              default:
+                console.log("SOYALAB ERROR: UNKNOWN PERIOD SELECTED!!!: " + e.name);
+                // do nothing
+            }
+          }
+          else {
+            switch(e.name) {
+              case '1950年以前':
+                g1920.removeLayer(Ladm1920);
+                g1920.removeLayer(Lstations1920);
+                break;
+              case '1951〜1970年':
+                g1950.removeLayer(Ladm1950);
+                g1950.removeLayer(Lstations1950);
+                break;
+              case '1971〜1990年':
+                g1995.removeLayer(Ladm1995);
+                g1995.removeLayer(Lstations1995);
+                break;
+              case '1991年〜現在':
+                g2017.removeLayer(Ladm2017);
+                g2017.removeLayer(Lstations2017);
+                break;
+              default:
+                console.log("SOYALAB ERROR: UNKNOWN PERIOD SELECTED!!!: " + e.name);
+                // do nothing
+            }
+          }
+        })
+
+        map.on('zoomend', function(){
+          Cookies.set('zoom', map.getZoom());
+          if (map.getZoom()>=9){
+            console.log(map.getZoom());
+
+            if (map.hasLayer(gdefault)) gdefault.addLayer(LstationsBase);
+
+            if (map.hasLayer(g1920)){
+              if (!g1920.hasLayer(Ladm1920))      g1920.addLayer(Ladm1920);
+              if (!g1920.hasLayer(Lstations1920)) g1920.addLayer(Lstations1920);
+            }
+            if (map.hasLayer(g1950)){
+              if (!g1920.hasLayer(Ladm1950))      g1950.addLayer(Ladm1950);
+              if (!g1920.hasLayer(Lstations1950)) g1950.addLayer(Lstations1950);
+            }
+            if (map.hasLayer(g1995)){
+              if (!g1920.hasLayer(Ladm1995))      g1995.addLayer(Ladm1995);
+              if (!g1920.hasLayer(Lstations1995)) g1995.addLayer(Lstations1995);
+            }
+            if (map.hasLayer(g2017)){
+              if (!g1920.hasLayer(Ladm2017))      g2017.addLayer(Ladm2017);
+              if (!g1920.hasLayer(Lstations2017)) g2017.addLayer(Lstations2017);
+            }
+          }
+          else {
+            if (map.hasLayer(gdefault)) gdefault.removeLayer(LstationsBase);
+
+            if (map.hasLayer(g1920)){
+              if (g1920.hasLayer(Ladm1920))      g1920.removeLayer(Ladm1920);
+              if (g1920.hasLayer(Lstations1920)) g1920.removeLayer(Lstations1920);
+            }
+            if (map.hasLayer(g1950)){
+              if (g1950.hasLayer(Ladm1950))      g1950.removeLayer(Ladm1950);
+              if (g1950.hasLayer(Lstations1950)) g1950.removeLayer(Lstations1950);
+            }
+            if (map.hasLayer(g1995)){
+              if (g1995.hasLayer(Ladm1995))      g1995.removeLayer(Ladm1995);
+              if (g1995.hasLayer(Lstations1995)) g1995.removeLayer(Lstations1995);
+            }
+            if (map.hasLayer(g2017)){
+              if (g2017.hasLayer(Ladm2017))      g2017.removeLayer(Ladm2017);
+              if (g2017.hasLayer(Lstations2017)) g2017.removeLayer(Lstations2017);
+            }
+          }
+
+        })
+
+      }
+      </script>
+  <div id="period"></div>
+  <div class="row">
+      <div class="col-md-9">
+      <style media="screen">
+        #default_map { width:100%; height: 440px;}
+      </style>
+      <script src="{% static 'wiki/js/leaflet.ajax.min.js' %}"></script>
+
+      {% leaflet_map "default_map" callback="window.map_init_default" %}
+      <script type="text/javascript">
+        
+      </script>
+      </div>
+
+      <div class="col-md-3 text-right">
+        <h5>{{ user.username }} さんの</h5>
+        <div class="float-left list-group">
+        <ul>
+          <li class="list-group-item"><strong>記事: </strong> {{ nart }}</li>
+          <li class="list-group-item"><strong>画像: </strong> {{ nfile }}</li>
+          <li class="list-group-item"><strong>地点: </strong> {{ nfet }}</li>
+          <!-- <li class="list-group-item"><a href="#" class="btn btn-outline-danger btn-sm">削除</a></li> -->
+        </ul>
+        <h5>が登録されています</h5>
+        </div>
+      </div><!-- row -->
+  </div>
+
+  <div class="row">
+    <div><!-- class="col-md-12"> -->
+      <div class="p-3">
+          <ul class="nav nav-tabs">
+            <li class="nav-item">
+              <a class="nav-link active" href="#tab1" data-toggle="tab">記事</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#tab2" data-toggle="tab">ファイル</a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            <div id="tab1" class="tab-pane active">
+              {% for art in articles %}
+              <div class="card-deck">
+                <div class="card">
+                  <!-- <img class="card-img-top" src="..." alt="pic" />-->
+                  <div class="card-body">
+                    <h4 class="card-title">{{ art.title }}</h4>
+                    <p class="card-subtitle mb-2 text-muted"><small>{% if art.published %}公開済み{% else %}草稿{% endif %}</small></p>
+                    <p class="card-text">{{ art.summary }}</p>
+                    <p class="card-text"><small class="text-muted">最終更新日：{{ art.updated_at }}</small></p>
+                  </div>
+                  <div class="card-footer">
+                    <a href="{% url 'edit_article' art.id %}" class="card-link">編集</a>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <div id="tab2" class="tab-pane">
+              {% for file in files %}
+              <div class="fancybox-content">
+                <a data-fancybox data-type="iframe" data-src="{% url 'edit_uploaded_file' file.id %}" href="javascript:;">
+                <img src="{{file.thumbS.url}}" />
+                </a><br/>
+                <span class="text-muted" style="font-size:smaller;">{% if file.title != '' %} {{ file.title }} {% endif %}</span><br/>
+                <span class="text-muted" style="font-size:x-small;">{% if file.published %} 公開済み {% else %} &nbsp; {% endif %}</span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+  
+</div>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.3.5/jquery.fancybox.min.js"></script>
+</body>
+
+</html>

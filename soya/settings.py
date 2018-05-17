@@ -82,6 +82,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -102,16 +103,16 @@ if 'local' in gethostname():
         }
     }
 else:
-    import dj_database_url
-    db_from_env = dj_database_url.config()
-
-
-    DATABASES['default'].update(db_from_env)
-    DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
-
-    GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH')
-    GEOS_LIBRARY_PATH = os.getenv('GEOS_LIBRARY_PATH')
-    
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': 'soya',
+            'USER': 'wakhok',
+            'PASSWORD': 'wakhok+097-0013',
+            'HOST': '127.0.0.1',
+            'PORT': 5432,
+        }
+    }
 
 GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH')
 GEOS_LIBRARY_PATH = os.getenv('GEOS_LIBRARY_PATH')
@@ -166,9 +167,11 @@ MEDIA_URL = '/media/'
 LEAFLET_CONFIG = {
     'DEFAULT_CENTER': (45.109167, 141.994444),
     'CENTER': (45.109167, 141.994444),
+    # 'SPATIAL_EXTENT' : (45.00, 141.0, 46.0, 142.5),
     'DEFAULT_ZOOM': 9,
     'MIN_ZOOM': 8,
-    'RESET_VIEW': True,
+    'MAX_ZOOM': 18,
+    'RESET_VIEW': False,
     'CONTROL': True
 }
 
@@ -189,3 +192,12 @@ TINYMCE_DEFAULT_CONFIG = {
     'valid_styles':'font-weight, font-style, text-decoration',
     'fontsize_default':'24pt',
 }
+
+
+SERIALIZATION_MODULES = {
+        "custom_geojson": "wiki.geojson_serializer",
+}
+
+FILE_UPLOAD_HANDLERS = [
+'django.core.files.uploadhandler.TemporaryFileUploadHandler',
+]

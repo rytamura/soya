@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.gis.db import models
 from geopy.geocoders import Nominatim
+from django.contrib.gis.geos import Point
+from django.forms import ModelForm, HiddenInput
 
 # Base admin border, rail, station Geo shapes
 
@@ -310,11 +312,10 @@ railroadstation2_mapping = {
 
 ## Geographical Features
 class Feature(models.Model):
-    name = models.CharField(max_length=128)
-    address = models.CharField(max_length=256)
+    name = models.CharField(max_length=128, verbose_name="場所の名前")
     latitude = models.FloatField(null=True)
     longitude = models.FloatField(null=True)
-    note = models.CharField(max_length=256)
+    note = models.CharField(max_length=256, verbose_name="市町村名")
 
     geom = models.PointField(srid=4612)
 
@@ -324,4 +325,18 @@ class Feature(models.Model):
     def geocode(self):
         geolocator = Nominatim()
         loc = geolocator.geocode(address)
+
+    @classmethod
+    def create(cls, name, note, latitude, longitude):
+        pt = Point(longitude, latitude)
+        feat = cls(name=name, note=note, latitude=latitude, longitude=longitude, geom=pt)
+        return feat
+
+class FeatureForm(ModelForm):
+    class Meta:
+        model = Feature
+        fields = ['name', 'note', 'latitude', 'longitude']
+        widgets = {'longitude': HiddenInput(), 'latitude': HiddenInput(), 'note': HiddenInput()}
+
         
+
