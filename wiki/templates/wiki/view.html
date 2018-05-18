@@ -1,0 +1,46 @@
+{% load i18n static %}
+{% load bootstrap4 %}
+{% bootstrap_css %} 
+{% bootstrap_javascript jquery='full' %}
+{% load leaflet_tags %}
+{% load geojson_tags %}
+<!DOCTYPE html>{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}">
+<head>
+  {% block title %}<title>記事の編集＠{{feature}}- Soya Lab Wiki</title>{% endblock %}
+  <!--[if IE 8]><script src="{% static "leaflet/eventlister.ie8.js" %}"></script><!--<![endif]-->
+  <!--[if lt IE 8]><script src="{% static "leaflet/eventlister.ie6-7.js" %}"></script><!--<![endif]-->
+  <link rel="shortcut icon" href="{% static 'image/favicon.ico' %}"/> 
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{% static 'wiki/css/bootstrap.min.css' %}">
+  {% leaflet_js %}
+  {% leaflet_css %}
+  <script type="text/javascript" src="{% static 'wiki/js/jquery-3.3.1_min.js' %}"></script>  
+  <script type="text/javascript" src="{% static 'wiki/js/js.cookie.js' %}"></script>
+  <script type="text/javascript" src="{% static 'wiki/js/soya.js' %}"></script>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="row" style="vertical-align: absmiddle;">
+    <div class="col-md-6">
+      <a href="/"><img src="{% static 'wiki/image/soyachiken.png' %}" height=70px class="rounded" /></a>
+    </div>
+    <div class="col-md-6 text-right">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <h2 class="text-primary">{{art.title}}</h1>
+      <h5 class="text-right">{{art.author}}</h3>
+      <div>
+        {{art.body|safe}}
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+
+
