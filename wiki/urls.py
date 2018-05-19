@@ -31,6 +31,7 @@ urlpatterns = [
 	path('edit/article/<int:pk>', views.edit_article, name='edit_article'),
 	path('post/article/<int:pk>/', views.post_article, name='post_article'),
 	path('post/newarticle/<int:pk>/', views.post_new_article, name='post_new_article'),
+	path('view/article/<int:pk>/', views.view_article, name='view_article'),
 	# path('delete/article/<int:pk>/', views.DeleteView.as_view(), name='delete_article'),
 	# Static Pages
 	path('howto/', flatviews.flatpage, {'url': '/howto/', 'name': 'HowTo'}),

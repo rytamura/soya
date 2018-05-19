@@ -83,14 +83,17 @@
             case '1951〜1970年':
               if (!g1950.hasLayer(Ladm1950))      g1950.addLayer(Ladm1950);
               if (!g1950.hasLayer(Lstations1950)) g1950.addLayer(Lstations1950);
+              Ladm1950.bringToBack();
               break;
             case '1971〜1990年':
               if (!g1995.hasLayer(Ladm1995))      g1995.addLayer(Ladm1995);
               if (!g1995.hasLayer(Lstations1995)) g1995.addLayer(Lstations1995);
+              Ladm1995.bringToBack();
               break;
             case '1991年〜現在':
               if (!g2017.hasLayer(Ladm2017))      g2017.addLayer(Ladm2017);
               if (!g2017.hasLayer(Lstations2017)) g2017.addLayer(Lstations2017);
+              Ladm2017.bringToBack();
               break;
             default:
               console.log("SOYALAB ERROR: UNKNOWN PERIOD SELECTED!!!: " + e.name);

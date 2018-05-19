@@ -15,6 +15,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="{% static 'wiki/css/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'wiki/js/dropzone.min.css' %}">
+  <link rel="stylesheet" href="{% static 'wiki/css/soya.css' %}">
 
   <script type="text/javascript" src="{% static 'wiki/js/js.cookie.js' %}"></script>
   <script type="text/javascript" src="{% static 'wiki/js/jquery-3.3.1_min.js' %}"></script>
@@ -129,7 +130,7 @@
         var popup = '<a data-fancybox data-type="iframe" data-src="'+
             "{% url 'edit_uploaded_file' file.id %}" + '"  href="javascript:;">' + 
             '<img src="' + "{{file.thumbS.url}}" + '" width=50 /></a><br />' +
-            '{% if file.published == False %} <font size="-1">(未公開)</font> {% else %} (公開済み) {% endif %} <br/>' +
+            '{% if file.published == False %} <font size="-1">(未公開)</font> {% else %} <font size="-1">(公開済み)</font> {% endif %} <br/>' +
             '{% if file.title == '' %} タイトルがありません {% else %} {{file.title}} {% endif %} <br/>' +
             '{% if file.summary == '' %} 紹介文がありません {% else %} {{file.summary}} {% endif %}';
         {% if file.latitude and file.longitude %}
@@ -142,8 +143,6 @@
         mc.addLayer(marker_{{forloop.counter}});
         {% endif %}
         {% endfor %}
-
-
 
         Lfeatures     = makeFeatureLayerWithLink("{% url 'features' %}", coords);
 
@@ -366,7 +365,7 @@
               {% for file in files %}
               <div class="fancybox-content">
                 <a data-fancybox data-type="iframe" data-src="{% url 'edit_uploaded_file' file.id %}" href="javascript:;">
-                <img src="{{file.thumbS.url}}" />
+                <img src="{{file.thumbS.url}}" class="img-thumbnail" />
                 </a><br/>
                 <span class="text-muted" style="font-size:smaller;">{% if file.title != '' %} {{ file.title }} {% endif %}</span><br/>
                 <span class="text-muted" style="font-size:x-small;">{% if file.published %} 公開済み {% else %} &nbsp; {% endif %}</span>

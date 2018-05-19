@@ -51,18 +51,13 @@
 <div class="row">
   <div class="col-md-10">
   <h4 class="mt-4 mb-5 border_bottom">
-    {% if is_new %}
-    {{ feature }}内の場所に
-    {% elif is_station %}
+    {% if is_station %}
     {{ feature }}駅に
     {% else %}
     {{ feature }}に
     {% endif %}
     関する新しい記事を作成
   </h4>
-  {% if is_new %}
-  <p>{{ feature }}内の新しい場所を宗谷地研に登録します。タイトルには<b>場所の名前</b>を、概要には<b>場所の簡単な紹介</b>を記してください。新しい場所は、「公開する」をクリックしない限り、あなた以外には見えません。</p>
-  {% endif %}
   <form action="{% if is_new %}{% url 'post_new_article' pk %}{% else %}{% url 'post_article' pk %}{% endif %}" method="post" class="form">
     {% csrf_token %}
     {% bootstrap_form form %}

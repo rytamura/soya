@@ -256,31 +256,6 @@ def edit_article(request, pk):
 		)
 	else:
 		return HttpResponse("UNNOWN METHOD APPLIED.", status=500)
-"""
-
-created_at = models.DateTimeField('作成日時', auto_now_add=True)
-	updated_at = models.DateTimeField('更新日時', auto_now=True)
-	# draft or publish
-	published = models.BooleanField('公開する', default=False)
-	feature_name = models.CharField(max_length=128, default="No place")
-	gis_type = models.CharField(max_length=32, default="No GIS type")
-	period = models.ForeignKey(Period, on_delete=models.PROTECT, verbose_name='年代', null=True)
-	latitude = models.FloatField(null=True)
-	longitude = models.FloatField(null=True)
-	author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-	title = models.CharField('記事タイトル', max_length=48)
-	summary = models.CharField('記事の概要', max_length=128)
-	body = tinymce_models.HTMLField('本文')
-	feature = models.ForeignKey(Feature, on_delete=models.PROTECT, null=True)
-	categories = models.ManyToManyField(Category, verbose_name="カテゴリ")
-	soya_certified = models.BooleanField(_("認証済"), default=False, help_text=_("Certified"))
-
-fields = ('published', 'title', 'summary', 'body', 'categories', 'feature_name', 'longitude', 'latitude', 'gis_type', 'period')
-		widgets = {'feature_name': HiddenInput(), 'longitude': HiddenInput(), 'latitude': HiddenInput(), 'gis_type': HiddenInput()}
-
-obj = WikiFile(created_at=datetime.datetime.now(), author=author, published=False, title="", summary="", latitude=lat, longitude=lng, upload=request.FILES.get('file'), md5=calculate_md5(request.FILES.get('file')))
-
-"""
 
 def post_body(request, art, cl):
 	art.published = cl['published']
@@ -319,6 +294,15 @@ def post_article(request, pk):
 	else:
 		return HttpResponse("UNNOWN METHOD APPLIED.", status=500)
 
+def view_article(request, pk):
+	art = get_object_or_404(Article, pk=pk)
+	return render (
+		request,
+		'wiki/view.html',
+		context = {
+			"art": art
+		}
+	)
 
 def create_feature(request):
 	params = request.GET
