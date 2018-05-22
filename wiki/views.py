@@ -20,11 +20,12 @@ from .models import WikiFile, WikiFileForm, WikiFileForm2, Article, ArticleForm
 
 class MappedArticle:
 	
-	def __init__(self, pk, lat, lon, tit):
+	def __init__(self, pk, lat, lon, tit, author):
 		self.pk = pk
 		self.latitude=lat
 		self.longitude=lon
 		self.title = tit
+		self.author = author
 
 	def __str__(self):
 		return "(%f, %f)" % [self.latitude, self.longitude]
@@ -51,7 +52,7 @@ def index(request):
 	num_features = Feature.objects.count()
 	num_files = WikiFile.objects.count()
 
-	maparts = [MappedArticle(a.pk, a.latitude, a.longitude, a.title) for a in articles if a.published and a.latitude]
+	maparts = [MappedArticle(a.pk, a.latitude, a.longitude, a.title, a.author) for a in articles if a.published and a.latitude]
 	mapfiles = [MappedFile(f.pk, f.latitude, f.longitude, f.thumbL, f.title, f.summary) for f in files if f.published and f.latitude]
 
 	return render(
@@ -204,7 +205,7 @@ def profile_view(request, pk):
 
 	articles = Article.objects.filter(Q(author=request.user))
 	files = WikiFile.objects.filter(Q(author=request.user))
-	maparts = [MappedArticle(a.pk, a.latitude, a.longitude, a.title) for a in articles if a.latitude]
+	maparts = [MappedArticle(a.pk, a.latitude, a.longitude, a.title, a.author) for a in articles if a.latitude]
 
 	return render(
 		request,
