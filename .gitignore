@@ -3,6 +3,7 @@
 venv
 staticfiles
 media
+.DS*
 **/.DS*
 #Database
 *.sqlite3
