@@ -27,37 +27,37 @@
 <body>
   <div class="container">
   <script type="text/javascript">
-      function map_init_default (map, options) {
-        {% if file.latitude is not None %}
-        map.setView( [ {{file.latitude}}, {{file.longitude}} ], 15);
-        var marker = L.marker([ {{file.latitude}}, {{file.longitude}} ]).addTo(map);
-        {% else %}
-        var the_marker
-        function onMapClick(e){
-          if (the_marker){
-            map.removeLayer(the_marker);
-          }
-          the_marker = L.marker(e.latlng, {draggable:'false'});
-          
-          $('#id_longitude').val(the_marker.getLatLng().lng);
-          $('#id_latitude').val(the_marker.getLatLng().lat);
-          console.log($('#id_longitude').val());
-          console.log($('#id_latitude').val());
-          var position = the_marker.getLatLng();
-          map.panTo(new L.LatLng(position.lat, position.lng)); 
-          the_marker.addTo(map);
-        };
-        map.on('click', onMapClick);
-       {% endif %}
-      }
-      </script>
+   function map_init_default (map, options) {
+     {% if file.latitude is not None %}
+     map.setView( [ {{file.latitude}}, {{file.longitude}} ], 15);
+     var marker = L.marker([ {{file.latitude}}, {{file.longitude}} ]).addTo(map);
+     {% else %}
+     var the_marker
+     function onMapClick(e){
+       if (the_marker){
+         map.removeLayer(the_marker);
+       }
+       the_marker = L.marker(e.latlng, {draggable:'false'});
+       
+       $('#id_longitude').val(the_marker.getLatLng().lng);
+       $('#id_latitude').val(the_marker.getLatLng().lat);
+       console.log($('#id_longitude').val());
+       console.log($('#id_latitude').val());
+       var position = the_marker.getLatLng();
+       map.panTo(new L.LatLng(position.lat, position.lng)); 
+       the_marker.addTo(map);
+     };
+     map.on('click', onMapClick);
+    {% endif %}
+   }
+  </script>
 
   
   <div class="row" style="margin-top:30px;">
     <div class="col-md-12">
       <script type="text/javascript">new ClipboardJS('.btn');</script>
       <div class="text-center">
-        <a href="{{file.upload.url}}" target="_new"><img src="{{file.thumbM.url}}" class="round" height="300px" /></a><br/>
+        <a href="{{file.upload.url}}" target="_new"><img src="{{file.thumbM.url}}" class="rounded" height="300px" /></a><br/>
         <button class="btn" data-clipboard-text="{{file.upload.url}}">画像のURLをコピー</button>
       </div>
     </div>

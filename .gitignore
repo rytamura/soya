@@ -1,5 +1,5 @@
-*.bak
-*.pyc
+**/*.bak
+**/*.pyc
 venv
 staticfiles
 media

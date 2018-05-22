@@ -129,8 +129,8 @@
         {% for file in files %}
         var popup = '<a data-fancybox data-type="iframe" data-src="'+
             "{% url 'edit_uploaded_file' file.id %}" + '"  href="javascript:;">' + 
-            '<img src="' + "{{file.thumbS.url}}" + '" width=50 /></a><br />' +
-            '{% if file.published == False %} <font size="-1">(未公開)</font> {% else %} <font size="-1">(公開済み)</font> {% endif %} <br/>' +
+            '<img src="' + "{{file.thumbS.url}}" + '" width=100 class="rounded" /></a><br />' +
+            '{% if file.published == False %} <font size="x-small">(未公開)</font> {% else %} <font size="x-small">(公開済み)</font> {% endif %} <br/>' +
             '{% if file.title == '' %} タイトルがありません {% else %} {{file.title}} {% endif %} <br/>' +
             '{% if file.summary == '' %} 紹介文がありません {% else %} {{file.summary}} {% endif %}';
         {% if file.latitude and file.longitude %}
@@ -141,6 +141,24 @@
             radius: 500
         }).bindPopup(popup).addTo(map);
         mc.addLayer(marker_{{forloop.counter}});
+        {% endif %}
+        {% endfor %}
+
+
+        {% for ma in maparts %}
+        var popup_ma = '<a data-fancybox data-type="iframe" data-src="'+
+            "{% url 'edit_article' ma.pk %}" + '"  href="javascript:;">' + 
+            '{% if ma.published == False %} <font size="x-small">(未公開)</font> {% else %} <font size="x-small">(公開済み)</font> {% endif %} <br/>' +
+            '{{ma.title}}<br/>' +
+            '{{ma.summary}}';
+        {% if ma.latitude and ma.longitude %}
+        var marker_ma_{{forloop.counter}} = L.circle([ {{ma.latitude}}, {{ma.longitude}} ], {
+            color:  {% if ma.published %} 'red' {% else %} 'blue' {% endif %},
+            fillColor:  {% if ma.published %} '#f03' {% else %} '#cde' {% endif %},
+            fillOpacity: 0.5,
+            radius: 500
+        }).bindPopup(popup_ma).addTo(map);
+        mc.addLayer(marker_ma_{{forloop.counter}});
         {% endif %}
         {% endfor %}
 
@@ -191,6 +209,13 @@
         }
         mc.bringToFront();
         
+        // ensure administrative borders be the bottom layer
+        if (map.hasLayer(Ladm1920)) Ladm1920.bringToBack();
+        if (map.hasLayer(Ladm1950)) Ladm1950.bringToBack();
+        if (map.hasLayer(Ladm1995)) Ladm1995.bringToBack();
+        if (map.hasLayer(Ladm2017)) Ladm2017.bringToBack();
+
+
         map.on('baselayerchange', function(e) {
           Cookies.set('period', e.name);
           // if at least one layer change occured,
@@ -200,7 +225,6 @@
           }
           console.log(e.name);
           $('#period').text(e.name);
-          // console.log(map.getZoom());
 
           if (map.getZoom()>=9){
             switch(e.name) {
@@ -332,8 +356,8 @@
   </div>
 
   <div class="row">
-    <div><!-- class="col-md-12"> -->
-      <div class="p-3">
+    <div>
+      <div class="m-2">
           <ul class="nav nav-tabs">
             <li class="nav-item">
               <a class="nav-link active" href="#tab1" data-toggle="tab">記事</a>
@@ -343,11 +367,11 @@
             </li>
           </ul>
           <div class="tab-content">
-            <div id="tab1" class="tab-pane active">
-              {% for art in articles %}
+            <div id="tab1" class="tab-pane m-3 active">
+              <div class="row">
               <div class="card-deck">
-                <div class="card">
-                  <!-- <img class="card-img-top" src="..." alt="pic" />-->
+              {% for art in articles %}
+                <div class="card {% if art.published %}{% else %}border-light{% endif %} mb-3 xs-1" style="width:15rem;">
                   <div class="card-body">
                     <h4 class="card-title">{{ art.title }}</h4>
                     <p class="card-subtitle mb-2 text-muted"><small>{% if art.published %}公開済み{% else %}草稿{% endif %}</small></p>
@@ -358,10 +382,12 @@
                     <a href="{% url 'edit_article' art.id %}" class="card-link">編集</a>
                   </div>
                 </div>
-              </div>
               {% endfor %}
+              </div>
+              </div>
             </div>
             <div id="tab2" class="tab-pane">
+              <div class="row">
               {% for file in files %}
               <div class="fancybox-content">
                 <a data-fancybox data-type="iframe" data-src="{% url 'edit_uploaded_file' file.id %}" href="javascript:;">
@@ -371,6 +397,7 @@
                 <span class="text-muted" style="font-size:x-small;">{% if file.published %} 公開済み {% else %} &nbsp; {% endif %}</span>
               </div>
               {% endfor %}
+              </div>
             </div>
           </div>
         </div>

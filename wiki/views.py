@@ -18,15 +18,48 @@ from .models import WikiFile, WikiFileForm, WikiFileForm2, Article, ArticleForm
 
 # Create your views here.
 
+class MappedArticle:
+	
+	def __init__(self, pk, lat, lon, tit):
+		self.pk = pk
+		self.latitude=lat
+		self.longitude=lon
+		self.title = tit
+
+	def __str__(self):
+		return "(%f, %f)" % [self.latitude, self.longitude]
+
+class MappedFile:
+	
+	def __init__(self, pk, lat, lon, thumb, tit, summary):
+		self.pk = pk
+		self.latitude=lat
+		self.longitude=lon
+		self.img = thumb
+		self.title = tit
+		self.summary = summary
+	def __str__(self):
+		return "(%f, %f)" % [self.latitude, self.longitude]
+
+		
 def index(request):
 	#
+	articles = Article.objects.all()
+	features = Feature.objects.all()
+	files = WikiFile.objects.all()
 	num_articles = Article.objects.count()
 	num_features = Feature.objects.count()
+	num_files = WikiFile.objects.count()
+
+	maparts = [MappedArticle(a.pk, a.latitude, a.longitude, a.title) for a in articles if a.published and a.latitude]
+	mapfiles = [MappedFile(f.pk, f.latitude, f.longitude, f.thumbL, f.title, f.summary) for f in files if f.published and f.latitude]
 
 	return render(
 		request,
 		'wiki/index.html',
 		context = {
+			'maparts' : maparts,
+			'mapfiles': mapfiles,
 			'nart' : num_articles,
 			'nfet' : num_features,
 		}
@@ -171,6 +204,7 @@ def profile_view(request, pk):
 
 	articles = Article.objects.filter(Q(author=request.user))
 	files = WikiFile.objects.filter(Q(author=request.user))
+	maparts = [MappedArticle(a.pk, a.latitude, a.longitude, a.title) for a in articles if a.latitude]
 
 	return render(
 		request,
@@ -179,6 +213,7 @@ def profile_view(request, pk):
 			'userid' : userid,
 			'name': request.user.get_username(),
 			'articles': articles,
+			'maparts': maparts,
 			'files': files,
 			'nart': articles.count(),
 			'nfile': files.count(),
@@ -219,6 +254,8 @@ def create_article(request):
 				'is_station': is_station,
 				'is_section': is_section,
 				'is_feature': is_feature,
+				'latitude': lat,
+				'longitude': lng,
 				'pk': 0, # not used
 				'is_new': True
 			}
@@ -243,6 +280,8 @@ def edit_article(request, pk):
 			'wiki/create.html',
 			context = {
 				'form': form,
+				'latitude': art.latitude,
+				'longitude': art.longitude,
 				'userid': request.user.id,
 				'feature': feature_name,
 				'is_new': new_feature,

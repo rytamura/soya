@@ -34,8 +34,14 @@
   </script>
 </head>
 <body>
-
+  
 <div class="container">
+  <script type="text/javascript">
+   function map_init_default (map, options) {
+     map.setView( [ {{latitude}}, {{longitude}} ], 12);
+     var marker = L.marker([ {{latitude}}, {{longitude}} ]).addTo(map);
+   }
+  </script>
 
 <div class="row" style="vertical-align: absmiddle;">
   <div class="col-md-6">
@@ -49,14 +55,32 @@
   </div>
 </div>
 <div class="row">
+  <div class="col-xs-6 d-flex align-items-center">
+    <style media="screen">
+      #default_map { width:400px; height: 200px;}
+    </style>
+    <script src="{% static 'wiki/js/leaflet.ajax.min.js' %}"></script>
+    {% leaflet_map "default_map" callback="window.map_init_default" %}
+  </div>
+</div>
+<div class="row">
   <div class="col-md-10">
   <h4 class="mt-4 mb-5 border_bottom">
+    {% if is_new %}
     {% if is_station %}
     {{ feature }}駅に
     {% else %}
     {{ feature }}に
     {% endif %}
     関する新しい記事を作成
+    {% else %}
+    記事の編集
+    {% if is_station %}
+    @{{ feature }}駅
+    {% else %}
+    @{{ feature }}
+    {% endif %}
+    {% endif %}
   </h4>
   <form action="{% if is_new %}{% url 'post_new_article' pk %}{% else %}{% url 'post_article' pk %}{% endif %}" method="post" class="form">
     {% csrf_token %}

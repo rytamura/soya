@@ -19,9 +19,12 @@
 	<script type="text/javascript" src="{% static 'wiki/js/soya.js' %}"></script>
 	<script type="text/javascript" src="{% static 'wiki/js/tinymce/tinymce.min.js' %}"></script>
 	<script type="text/javascript" src="{% static 'wiki/js/tinymce/jquery.tinymce.min.js' %}"></script>
+	<link rel="stylesheet" href="http://leaflet.github.io/Leaflet.markercluster/dist/MarkerCluster.css" />
+	<link rel="stylesheet" href="http://leaflet.github.io/Leaflet.markercluster/dist/MarkerCluster.Default.css" />
+	<script src="http://leaflet.github.io/Leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>	
 </head>
 <body>
-	<div class="container">
+	<div class="container-fluid">
 	{% block content %}
 		{{ content }}
 	{% endblock %}

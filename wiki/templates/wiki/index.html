@@ -24,6 +24,31 @@
   </div>
 <script type="text/javascript">
     function map_init_default (map, options) {
+      var mc = L.markerClusterGroup();
+      {% for ma in maparts %}
+      var popup = '<a href="'+"{% url "view_article" ma.pk %}"+'" target="_new">' + "{{ma.title}}" + '</a>';
+      var marker_{{forloop.counter}} = L.circle([ {{ma.latitude}}, {{ma.longitude}} ], {
+          color:  "red",
+          fillColor:  "f03",
+          fillOpacity: 0.5,
+          radius: 500
+      }).bindPopup(popup).addTo(map);
+      mc.addLayer(marker_{{forloop.counter}});
+      {% endfor %}
+
+      {% for file in mapfiles %}
+      var popup = '<img src="' + "{{file.img.url}}" + '" class="img-thumbnail" /><br />' +
+          '{% if file.title == '' %} タイトルがありません {% else %} {{file.title}} {% endif %} <br/>' +
+          '{% if file.summary == '' %} 紹介文がありません {% else %} {{file.summary}} {% endif %}';
+      var marker_{{forloop.counter}} = L.circle([ {{file.latitude}}, {{file.longitude}} ], {
+          color:  "orange",
+          fillColor:  "f43",
+          fillOpacity: 0.5,
+          radius: 500
+      }).bindPopup(popup).addTo(map);
+      mc.addLayer(marker_{{forloop.counter}});
+      {% endfor %}
+
       Lfeatures = makeFeatureLayer("{% url 'features' %}");
       Lsections1920 = makeSectionLayer("{% url 'sections' 1920 1950 %}");
       Lsections1950 = makeSectionLayer("{% url 'sections' 1951 1970 %}");
@@ -63,6 +88,17 @@
 
       gdefault = L.layerGroup([LsectionsBase]);
       gdefault.addTo(map);
+
+      if (mc.getLayers().length>0){
+        map.addLayer(mc);
+        mc.bringToFront();
+      }
+
+      // ensure administrative borders be the bottom layer
+      if (map.hasLayer(Ladm1920)) Ladm1920.bringToBack();
+      if (map.hasLayer(Ladm1950)) Ladm1950.bringToBack();
+      if (map.hasLayer(Ladm1995)) Ladm1995.bringToBack();
+      if (map.hasLayer(Ladm2017)) Ladm2017.bringToBack();
 
       map.on('baselayerchange', function(e) {
         // if at least one layer change occured,
