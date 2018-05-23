@@ -1,3 +1,32 @@
+var ic_doc24 = L.icon({
+	iconUrl: '/wiki/image/doc24.png',
+	iconSize: [24,24],
+});
+
+var ic_doc48 = L.icon({
+	iconUrl: '/wiki/image/doc48.png',
+	iconSize: [48,48],
+});
+
+var ic_loc24 = L.icon({
+	iconUrl: '/wiki/image/loc24.png',
+	iconSize: [24,24],
+});
+
+var ic_loc48 = L.icon({
+	iconUrl: '/wiki/image/loc48.png',
+	iconSize: [48,48],
+});
+
+var ic_photo24 = L.icon({
+	iconUrl: '/wiki/image/photo24.png',
+	iconSize: [24,24],
+});
+
+var ic_photo48 = L.icon({
+	iconUrl: '/wiki/image/photo48.png',
+	iconSize: [48,48],
+});
 
 function makeFeatureLayerWithLink(urlstring){
 	return new L.GeoJSON.AJAX(urlstring, {

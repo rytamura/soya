@@ -1,8 +1,42 @@
+var ic_doc24 = L.icon({
+	iconUrl: '/static/wiki/image/doc24.png',
+	iconSize: [24,24],
+});
+
+var ic_doc48 = L.icon({
+	iconUrl: '/static/wiki/image/doc48.png',
+	iconSize: [48,48],
+});
+
+var ic_loc24 = L.icon({
+	iconUrl: '/static/wiki/image/loc24.png',
+	iconSize: [24,24],
+});
+
+var ic_loc48 = L.icon({
+	iconUrl: '/static/wiki/image/loc48.png',
+	iconSize: [48,48],
+});
+
+var ic_photo24 = L.icon({
+	iconUrl: '/static/wiki/image/photo24.png',
+	iconSize: [24,24],
+});
+
+var ic_photo48 = L.icon({
+	iconUrl: '/static/wiki/image/photo48.png',
+	iconSize: [48,48],
+});
+
+
 function makeFeatureLayer(urlstring){
 	return new L.GeoJSON.AJAX(urlstring, {
 		onEachFeature: function(feature, layer){
 			var label = feature.properties.name.toString();
 			layer.bindPopup(label);
+		},
+		style: function(feature){
+			return{'weight': 8, 'color': "red", 'opacity':0.3};
 		}
 	});
 };
@@ -17,7 +51,7 @@ function makeSectionLayer(urlstring){
 			layer.bindPopup(label);
 		},
 		style: function(feature){
-			return {'weight':4, 'color': feature.properties.ctype == 2 ? 'blue' : 'darkgreen', opacity:0.3};
+			return {'weight':4, 'color': feature.properties.ctype == 2 ? 'blue' : 'darkgreen', 'opacity':0.3};
 		}
 	});
 };

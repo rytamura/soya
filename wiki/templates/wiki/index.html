@@ -27,11 +27,8 @@
       var mc = L.markerClusterGroup();
       {% for ma in maparts %}
       var popup = '<a href="'+"{% url "view_article" ma.pk %}"+'" target="_new">' + "{{ma.title}}" + '</a><br /><font class="muted" size="x-small">({{ma.author}})</font>';
-      var marker_{{forloop.counter}} = L.circle([ {{ma.latitude}}, {{ma.longitude}} ], {
-          color:  "red",
-          fillColor:  "f03",
-          fillOpacity: 0.5,
-          radius: 500
+      var marker_{{forloop.counter}} = L.marker([ {{ma.latitude}}, {{ma.longitude}} ], {
+        icon: ic_doc24
       }).bindPopup(popup).addTo(map);
       mc.addLayer(marker_{{forloop.counter}});
       {% endfor %}
@@ -40,11 +37,8 @@
       var popup = '<img src="' + "{{file.img.url}}" + '" class="img-thumbnail" /><br />' +
           '{% if file.title == '' %} タイトルがありません {% else %} {{file.title}} {% endif %} <br/>' +
           '{% if file.summary == '' %} 紹介文がありません {% else %} {{file.summary}} {% endif %}';
-      var marker_{{forloop.counter}} = L.circle([ {{file.latitude}}, {{file.longitude}} ], {
-          color:  "orange",
-          fillColor:  "f43",
-          fillOpacity: 0.5,
-          radius: 500
+      var marker_{{forloop.counter}} = L.marker([ {{file.latitude}}, {{file.longitude}} ], {
+        icon: ic_photo24
       }).bindPopup(popup).addTo(map);
       mc.addLayer(marker_{{forloop.counter}});
       {% endfor %}
