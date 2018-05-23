@@ -1,7 +1,6 @@
 **/*.bak
 **/*.pyc
 venv
-staticfiles
 media
 .DS*
 **/.DS*
