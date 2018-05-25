@@ -85,7 +85,7 @@
 
       if (mc.getLayers().length>0){
         map.addLayer(mc);
-        mc.bringToFront();
+        mc.bringToBack();
       }
 
       // ensure administrative borders be the bottom layer
@@ -108,6 +108,7 @@
             case '1950年以前':
               if (!g1920.hasLayer(Ladm1920))      g1920.addLayer(Ladm1920);
               if (!g1920.hasLayer(Lstations1920)) g1920.addLayer(Lstations1920);
+              Lstations1920.bringToFront();
               Ladm1920.bringToBack();
               break;
             case '1951〜1970年':

@@ -134,11 +134,8 @@
             '{% if file.title == '' %} タイトルがありません {% else %} {{file.title}} {% endif %} <br/>' +
             '{% if file.summary == '' %} 紹介文がありません {% else %} {{file.summary}} {% endif %}';
         {% if file.latitude and file.longitude %}
-        var marker_{{forloop.counter}} = L.circle([ {{file.latitude}}, {{file.longitude}} ], {
-            color:  {% if file.published %} 'red' {% else %} 'blue' {% endif %},
-            fillColor:  {% if file.published %} '#f03' {% else %} '#cde' {% endif %},
-            fillOpacity: 0.5,
-            radius: 500
+        var marker_{{forloop.counter}} = L.marker([ {{file.latitude}}, {{file.longitude}} ], {
+            icon: {% if file.published %} ic_photo24 {% else %} ic_photo24_unpub {% endif %}
         }).bindPopup(popup).addTo(map);
         mc.addLayer(marker_{{forloop.counter}});
         {% endif %}
@@ -152,11 +149,8 @@
             '{{ma.title}}<br/>' +
             '{{ma.summary}}';
         {% if ma.latitude and ma.longitude %}
-        var marker_ma_{{forloop.counter}} = L.circle([ {{ma.latitude}}, {{ma.longitude}} ], {
-            color:  {% if ma.published %} 'red' {% else %} 'blue' {% endif %},
-            fillColor:  {% if ma.published %} '#f03' {% else %} '#cde' {% endif %},
-            fillOpacity: 0.5,
-            radius: 500
+        var marker_ma_{{forloop.counter}} = L.marker([ {{ma.latitude}}, {{ma.longitude}} ], {
+            icon: {% if ma.published %} ic_doc24 {% else %} ic_doc24_unpub {% endif %}
         }).bindPopup(popup_ma).addTo(map);
         mc.addLayer(marker_ma_{{forloop.counter}});
         {% endif %}

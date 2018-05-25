@@ -1,30 +1,50 @@
 var ic_doc24 = L.icon({
-	iconUrl: '/wiki/image/doc24.png',
+	iconUrl: '/static/wiki/image/doc24.png',
 	iconSize: [24,24],
 });
 
 var ic_doc48 = L.icon({
-	iconUrl: '/wiki/image/doc48.png',
+	iconUrl: '/static/wiki/image/doc48.png',
+	iconSize: [48,48],
+});
+
+var ic_doc24_unpub = L.icon({
+	iconUrl: '/static/wiki/image/doc24.png',
+	iconSize: [24,24],
+});
+
+var ic_doc48_unpub = L.icon({
+	iconUrl: '/static/wiki/image/doc48_unpub.png',
 	iconSize: [48,48],
 });
 
 var ic_loc24 = L.icon({
-	iconUrl: '/wiki/image/loc24.png',
+	iconUrl: '/static/wiki/image/loc24.png',
 	iconSize: [24,24],
 });
 
 var ic_loc48 = L.icon({
-	iconUrl: '/wiki/image/loc48.png',
+	iconUrl: '/static/wiki/image/loc48.png',
 	iconSize: [48,48],
 });
 
 var ic_photo24 = L.icon({
-	iconUrl: '/wiki/image/photo24.png',
+	iconUrl: '/static/wiki/image/photo24.png',
 	iconSize: [24,24],
 });
 
 var ic_photo48 = L.icon({
-	iconUrl: '/wiki/image/photo48.png',
+	iconUrl: '/static/wiki/image/photo48.png',
+	iconSize: [48,48],
+});
+
+var ic_photo24_unpub = L.icon({
+	iconUrl: '/static/wiki/image/photo24_unpub.png',
+	iconSize: [24,24],
+});
+
+var ic_photo48_unpub = L.icon({
+	iconUrl: '/static/wiki/image/photo48_unpub.png',
 	iconSize: [48,48],
 });
 
@@ -130,7 +150,6 @@ function makeAdmLayerWithLink(urlstring, year, legend){
 				}
 				var coords_str = '&lat='+latlng.lat+'&lng='+latlng.lng
 				var linkstr = label2 + '<br /><a href="/wiki/create/article?adm='+label1 + '" target="_new">'+label1+'に関する記事を作成</a>';
-				// linkstr = linkstr + '<br /><a href="/wiki/create/article?adm='+label1+ coords_str + '" target="_new">この場所に関する記事を作成</a>';
 				linkstr = linkstr + '<br /><a data-fancybox data-type="iframe" data-src="/wiki/create/feature?adm='+label1+ coords_str + '">この場所を地図に新規登録</a>';
 				layer.bindPopup(linkstr).openPopup();
 			});

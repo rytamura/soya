@@ -20,12 +20,14 @@ from .models import WikiFile, WikiFileForm, WikiFileForm2, Article, ArticleForm
 
 class MappedArticle:
 	
-	def __init__(self, pk, lat, lon, tit, author):
+	def __init__(self, pk, lat, lon, tit, author, feature_name, gis_type):
 		self.pk = pk
 		self.latitude=lat
 		self.longitude=lon
 		self.title = tit
-		self.author = author
+		self.author = author 
+		self.feature_name = feature_name
+		self.gis_type = gis_type
 
 	def __str__(self):
 		return "(%f, %f)" % [self.latitude, self.longitude]
@@ -52,7 +54,7 @@ def index(request):
 	num_features = Feature.objects.count()
 	num_files = WikiFile.objects.count()
 
-	maparts = [MappedArticle(a.pk, a.latitude, a.longitude, a.title, a.author) for a in articles if a.published and a.latitude]
+	maparts = [MappedArticle(a.pk, a.latitude, a.longitude, a.title, a.author, a.feature_name, a.gis_type) for a in articles if a.published]
 	mapfiles = [MappedFile(f.pk, f.latitude, f.longitude, f.thumbL, f.title, f.summary) for f in files if f.published and f.latitude]
 
 	return render(
@@ -271,8 +273,8 @@ def edit_article(request, pk):
 		gtype = art.gis_type
 		feature_name = art.feature_name
 		form = ArticleForm(instance=art)
-		new_feature = (gtype == "adm") and (lat is not None)
-		is_adm = (gtype == "adm") and (lat is None)
+		new_feature = (gtype == "adm") and (art.latitude is not None)
+		is_adm = (gtype == "adm") and (art.latitude is None)
 		is_station = (gtype == "station")
 		is_section = (gtype == "section")
 		is_feature = (gtype == "feature")
@@ -314,6 +316,8 @@ def post_body(request, art, cl):
 def post_new_article(request, pk):
 	if request.method == 'POST':
 		form = ArticleForm(request.POST, request)
+		form.fields['longitude'].required = False
+		form.fields['latitude'].required = False
 		if form.is_valid():
 			user = User.objects.get(pk=request.user.id)
 			art = Article(author=user)
@@ -326,6 +330,8 @@ def post_new_article(request, pk):
 def post_article(request, pk):
 	if request.method == 'POST':
 		form = ArticleForm(request.POST, request)
+		form.fields['longitude'].required = False
+		form.fields['latitude'].required = False
 		if form.is_valid():
 			art = Article.objects.get(pk=pk)
 			return post_body(request, art, form.cleaned_data)
