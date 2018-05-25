@@ -207,7 +207,7 @@ def profile_view(request, pk):
 
 	articles = Article.objects.filter(Q(author=request.user))
 	files = WikiFile.objects.filter(Q(author=request.user))
-	maparts = [MappedArticle(a.pk, a.latitude, a.longitude, a.title, a.author) for a in articles if a.latitude]
+	maparts = [MappedArticle(a.pk, a.latitude, a.longitude, a.title, a.author, a.feature_name, a.gis_type) for a in articles if a.latitude]
 
 	return render(
 		request,
