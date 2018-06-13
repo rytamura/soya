@@ -54,7 +54,7 @@ def index(request):
 	num_features = Feature.objects.count()
 	num_files = WikiFile.objects.count()
 
-	maparts = [MappedArticle(a.pk, a.latitude, a.longitude, a.title, a.author, a.feature_name, a.gis_type) for a in articles if a.published]
+	maparts = [MappedArticle(a.pk, a.latitude, a.longitude, a.title, a.author, a.feature_name, a.gis_type) for a in articles if a.published and a.latitude]
 	mapfiles = [MappedFile(f.pk, f.latitude, f.longitude, f.thumbL, f.title, f.summary) for f in files if f.published and f.latitude]
 
 	return render(
