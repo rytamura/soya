@@ -29,7 +29,6 @@ DEBUG = True
 
 # ALLOWED_HOSTS = []
 
-SITE_ID = 1
 
 # Application definition
 
@@ -90,6 +89,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'soya.wsgi.application'
 
+SITE_ID = 1
+
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
@@ -113,6 +114,18 @@ else:
             'PORT': 5432,
         }
     }
+
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+#        'NAME': 'soya',
+#        'USER': 'wakhok',
+#        'PASSWORD': 'wakhok+097-0013',
+#        'HOST': 'soya-lab.jp',
+#        'PORT': 5432,
+#    }
+#}
+
 
 GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH')
 GEOS_LIBRARY_PATH = os.getenv('GEOS_LIBRARY_PATH')
@@ -201,3 +214,10 @@ SERIALIZATION_MODULES = {
 FILE_UPLOAD_HANDLERS = [
 'django.core.files.uploadhandler.TemporaryFileUploadHandler',
 ]
+
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+

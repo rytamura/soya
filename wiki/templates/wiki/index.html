@@ -202,6 +202,7 @@
 
       })
 
+      
     }
     </script>
         
@@ -212,6 +213,7 @@
     </style>
     <script src="{% static 'wiki/js/leaflet.ajax.min.js' %}"></script>
       {% leaflet_map "default_map" callback="window.map_init_default" %}
+      <button id="btnCurLocation" onClick="setCurLocation()">現在地を表示</button>
     </div>
 
     <div class="col-md-3 text-right">
@@ -254,5 +256,29 @@
 
   </div>
   </div>
+  <script type="text/javascript">
+    function setCurLocation(){
+      if (navigator.geolocation == false){
+        alert('現在地を取得できませんでした。');
+        return;
+      }
+    
+      function success(e) {
+        var lat  = e.coords.latitude;
+        var lng = e.coords.longitude;
+        mymap.setView([lat, lng], 15);
+    
+        var pulsingIcon = L.icon.pulse({iconSize:[20,20],color:'#1199fb'});
+        L.marker([lat, lng],{icon: pulsingIcon}).addTo(mymap);
+    
+      };
+    
+      function error() {
+        alert('現在地を取得できませんでした。');
+      };
+    
+      navigator.geolocation.getCurrentPosition(success, error);
+    }
+  </script>
 
 {% endblock %}

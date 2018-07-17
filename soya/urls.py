@@ -28,5 +28,5 @@ urlpatterns = [
     path(r'wiki/', include('wiki.urls')),
     path(r'',  RedirectView.as_view(url='/wiki/', permanent=True)),
     path(r'tinymce/', include('tinymce.urls')),
-    path('howto/', include('django.contrib.flatpages.urls')),
+    path('pages/', include('django.contrib.flatpages.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
