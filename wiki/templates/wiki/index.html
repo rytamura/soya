@@ -202,7 +202,28 @@
 
       })
 
+      function setCurLocation(){
+        if (navigator.geolocation == false){
+          alert('現在地を取得できませんでした。');
+          return;
+        }
+    
+        function success(e) {
+          var lat  = e.coords.latitude;
+          var lng = e.coords.longitude;
+          map.setView([lat, lng], 15);
       
+          var pulsingIcon = L.icon.pulse({iconSize:[20,20],color:'#1199fb'});
+          L.marker([lat, lng],{icon: pulsingIcon}).addTo(map);
+      
+        };
+    
+        function error() {
+          alert('現在地を取得できませんでした。');
+        };
+    
+        navigator.geolocation.getCurrentPosition(success, error);
+      }
     }
     </script>
         
@@ -257,28 +278,7 @@
   </div>
   </div>
   <script type="text/javascript">
-    function setCurLocation(){
-      if (navigator.geolocation == false){
-        alert('現在地を取得できませんでした。');
-        return;
-      }
     
-      function success(e) {
-        var lat  = e.coords.latitude;
-        var lng = e.coords.longitude;
-        default_map.setView([lat, lng], 15);
-    
-        var pulsingIcon = L.icon.pulse({iconSize:[20,20],color:'#1199fb'});
-        L.marker([lat, lng],{icon: pulsingIcon}).addTo(default_map);
-    
-      };
-    
-      function error() {
-        alert('現在地を取得できませんでした。');
-      };
-    
-      navigator.geolocation.getCurrentPosition(success, error);
-    }
   </script>
 
 {% endblock %}
